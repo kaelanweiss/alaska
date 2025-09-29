@@ -12,9 +12,8 @@ clear
 % raw_path = 'S:data/raw/meltstake/';
 raw_path = 'F:\meltstake\data\raw';
 
-tbl_path = 'G:\Shared drives\Ice-ocean-interactions\science\Grad Students\Kaelan\meltstake_deployments.xlsx';
-ms_tbl = readtable(tbl_path,'sheet','overview');
 dep_num = 20;
+ms_tbl = loadMSInfo(dep_num);
 
 % deployment name
 % dep = 'ms01_20230708_0218';
@@ -31,7 +30,6 @@ t2 = ms_tbl.End(dep_num);
 
 % save flag
 save_files = 0;
-
 %% parse data
 % T
 T = parseRBRDeployment(dep_path,t1,t2);

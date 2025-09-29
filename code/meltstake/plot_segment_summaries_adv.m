@@ -43,7 +43,7 @@ for i = 3:ndeps
     adv = burstAverageADV(adv);
 
     % normalize backscatter by mean profile
-    adv.pck_amp = adv.pck_amp./repmat(mean_prof',[size(adv.pck_amp,1) 1 3]);
+    % adv.pck_amp = adv.pck_amp./repmat(mean_prof',[size(adv.pck_amp,1) 1 3]);
 
     % get some backscatter values
     pck_amp_min = mean(adv.pck_amp(:,adv.pck_dist(2,:) > 30 & adv.pck_dist(2,:) < 50,:),'all','omitnan');
@@ -101,14 +101,14 @@ for i = 3:ndeps
         hold on
         pcolor(adv.pck_time,adv.pck_dist(2,:),adv.pck_amp(:,:,j)')
         shading flat
-        cmocean('mat')
+        cmocean('rain')
         clim([pck_amp_min 0.9*max(adv.pck_amp,[],'all')])
         plot(extrema(adv.time),157*[1 1],'r-')
         plot(extrema(adv.time),157*[1 1]-adv.sampling_volume/2,'r--')
         plot(extrema(adv.time),157*[1 1]+adv.sampling_volume/2,'r--')
     end
     linkaxes(ax4)
-    ylim(ax4(1),[50 250])
+    ylim(ax4(1),[50 300])
     
     linkaxes([ax1 ax2 ax3 ax4],'x')
 
