@@ -12,12 +12,12 @@ clear
 % raw_path = 'S:data/raw/meltstake/';
 raw_path = 'F:\meltstake\data\raw';
 
-dep_num = 20;
+dep_num = 27;
 ms_tbl = loadMSInfo(dep_num);
 
 % deployment name
 % dep = 'ms01_20230708_0218';
-dep = ms_tbl.Folder{dep_num};
+dep = ms_tbl.Folder{1};
 
 % deployment path
 dep_path = fullfile(raw_path,dep);
@@ -25,8 +25,8 @@ dep_path = fullfile(raw_path,dep);
 % set time range
 % t1 = datetime(2023,7,8,1,46,0);
 % t2 = datetime(2023,7,8,2,20,0);
-t1 = ms_tbl.Start(dep_num);
-t2 = ms_tbl.End(dep_num);
+t1 = ms_tbl.Start;
+t2 = ms_tbl.End;
 
 % save flag
 save_files = 0;

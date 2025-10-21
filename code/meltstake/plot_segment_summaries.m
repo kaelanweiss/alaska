@@ -27,7 +27,7 @@ T_clrs = T_clr'*[1 0.5 0];
 T_lbls = {'near','mid','far'};
 
 % loop through deployment
-for i = 1:ndeps
+for i = 17%:ndeps
     nsegs = sum(ms_tbl.Number==dep_nums(i));
     dep_name = ms_tbl.Folder{ms_tbl.Number==dep_nums(i) & ms_tbl.Window==1};
     for j = 1:nsegs
@@ -108,6 +108,6 @@ for i = 1:ndeps
         title(ax(1),sprintf('dep %d seg %d | %.1f m, %d min, %.1f m/day',dep_nums(i),j,round(depth,1),round(dur),round(m_obs,1)),'fontsize',fs)
         
         % save figure
-        print(fig,fullfile(fig_dir,sprintf('segment_summary_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
+%         print(fig,fullfile(fig_dir,sprintf('segment_summary_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
     end
 end

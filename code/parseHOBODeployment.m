@@ -152,7 +152,7 @@ for i = 1:nf
     end
 
     % put data in output structure
-    idxt = dat{:,t_col} >= t1 & dat{:,t_col} <= t2;
+    idxt = dat{:,t_col} >= t1 & dat{:,t_col} < t2;
     hobo(sn_idx).time = dat{idxt,t_col};
     hobo(sn_idx).T = dat{idxt,T_col};
     if exist('C_col','var')

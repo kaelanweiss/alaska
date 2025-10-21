@@ -60,7 +60,7 @@ for i = 1:n_deps
         
         % find window data
         idxt = adcp_all.burst.time>=t1 & adcp_all.burst.time<=t2;
-        idxr = adcp_all.burst.range<=r_max(row_num);
+        idxr = round(double(adcp_all.burst.range),6)<=r_max(row_num); % issues with single precision
         
         % trim data down to time and range for each window
         adcp = adcp_all;

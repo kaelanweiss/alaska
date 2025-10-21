@@ -12,7 +12,7 @@ addpath('..')
 load glacier_clrs
 
 % load data and keep track of iceberg/glacier deps
-ms_tbl = loadMSInfo('manualwindows');
+ms_tbl = loadMSInfo('segments');
 idx_berg = ms_tbl.Number <= 19;
 for i = 1:3
     idx_glac(:,i) = ms_tbl.Number == (i+25);
