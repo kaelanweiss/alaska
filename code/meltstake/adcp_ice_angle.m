@@ -8,7 +8,7 @@ clear
 
 raw_dir = 'F:/meltstake/data/raw';
 
-ms_tbl = loadMSInfo(26:28,'manualwindows');
+ms_tbl = loadMSInfo(26:28,'segments');
 mcorr_tbl = loadMSInfo(26:28,'pitch_correction');
 
 [dep_nums,uidx] = unique(ms_tbl.Number);

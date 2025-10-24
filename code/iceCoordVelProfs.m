@@ -26,12 +26,12 @@ zw2 = beam_distance(:,2);
 zw4 = beam_distance(:,4);
 beta = atand((zw2-zw4)*cotd(theta)./(zw2+zw4));
 
-% calculate beam/along-ice separation
+% calculate beam/along-ice separation angle
 phi2 = 90-theta-beta;
 phi4 = 90-theta+beta;
 
 % choose window
-j = 4;
+j = 6;
 idxt = adcp.burst.time>=windows(j,1) & adcp.burst.time<=windows(j,2);
 
 % qa a little bit
@@ -51,7 +51,7 @@ rmax = 0.9;
 % figure(1)
 
 % transform coordinates
-n2 = n_trans(adcp.burst.range,zw2(j),theta,beta(j));
+n2 = n_trans(adcp.burst.range,zw2(j),-theta,beta(j));
 n4 = n_trans(adcp.burst.range,zw4(j),theta,beta(j));
 
 nmin = -0.2;
@@ -65,7 +65,7 @@ w4 = -b4/cosd(phi4(j));
 %% plot
 lw = 0.9;
 figure(4); clf
-axes(figure(4),'position',axgridpos(1,2,1,.08,.12))
+axes(figure(4),'position',axgridpos(1,2,1,[.08,.12],[0 0]))
 hold on
 plot(n2(idxn2),b2(idxn2),'.-','linewidth',lw)
 plot(n4(idxn4),b4(idxn4),'.-','linewidth',lw)
@@ -76,7 +76,7 @@ box on
 legend({'b2 (up)','b4 (dn)'},'location','best')
 title(sprintf('SF0824 Section%d \\beta=%.1f^\\circ',j,beta(j)))
 
-axes(figure(4),'position',axgridpos(1,2,2,.08,.12))
+axes(figure(4),'position',axgridpos(1,2,2,[.08,.12],[0 0]))
 hold on
 plot(n2(idxn2),w2(idxn2),'.-','linewidth',lw)
 plot(n4(idxn4),w4(idxn4),'.-','linewidth',lw)

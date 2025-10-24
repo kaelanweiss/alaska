@@ -280,7 +280,7 @@ for i = 1:nf
     % 2 burst
     if parse_burst
         if i == 1
-            adcp.burst.range = data.([burst_prefix 'Range']);
+            adcp.burst.range = cast(data.([burst_prefix 'Range']),'double');
         end
         in_slice = data.([burst_prefix 'MatlabTimeStamp'])>=t1 & data.([burst_prefix 'MatlabTimeStamp'])<=t2;
         n = length(find(in_slice));
