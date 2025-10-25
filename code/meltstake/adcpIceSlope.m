@@ -23,4 +23,4 @@ beam_angle = 25; % (deg)
 conv_dist = 0.163; % (m) distance between ADCP coordinate origin and location of beam convergence
 
 % calculate slope
-beta = atan((r1-r2)/((r1+r2+2*conv_dist)*tand(beam_angle)));
+beta = atan((r1-r2)./((r1+r2+2*conv_dist)*tand(beam_angle)));

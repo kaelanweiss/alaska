@@ -8,8 +8,11 @@ clear
 proc_dir = 'F:/meltstake/data/proc';
 fig_dir = 'F:/meltstake/figures/segment_summary';
 
+% use bin-mapped data
+use_binmap = 0;
+
 % segment info
-ms_tbl = loadMSInfo('manualwindows');
+ms_tbl = loadMSInfo('segments');
 
 dep_nums = unique(ms_tbl.Number);
 ndeps = length(dep_nums);
@@ -27,12 +30,16 @@ T_clrs = T_clr'*[1 0.5 0];
 T_lbls = {'near','mid','far'};
 
 % loop through deployment
-for i = 17%:ndeps
+for i = 17:ndeps
     nsegs = sum(ms_tbl.Number==dep_nums(i));
     dep_name = ms_tbl.Folder{ms_tbl.Number==dep_nums(i) & ms_tbl.Window==1};
     for j = 1:nsegs
         % load data
-        load(fullfile(proc_dir,dep_name,sprintf('adcp%d.mat',j)))
+        if use_binmap
+            load(fullfile(proc_dir,dep_name,'adcp_bin_map',sprintf('adcp%d.mat',j)))
+        else
+            load(fullfile(proc_dir,dep_name,sprintf('adcp%d.mat',j)))
+        end
         load(fullfile(proc_dir,dep_name,sprintf('T%d.mat',j)))
 
         % mean velocity components
@@ -105,9 +112,17 @@ for i = 17%:ndeps
         depth = ms_tbl.depth(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j);
         dur = ms_tbl.Duration(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j);
         m_obs = msTable2Vector(ms_tbl.m(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j))*.24;
-        title(ax(1),sprintf('dep %d seg %d | %.1f m, %d min, %.1f m/day',dep_nums(i),j,round(depth,1),round(dur),round(m_obs,1)),'fontsize',fs)
-        
+        if use_binmap
+            title(ax(1),sprintf('dep %d seg %d | %.1f m, %d min, %.1f m/day (binmap)',dep_nums(i),j,round(depth,1),round(dur),round(m_obs,1)),'fontsize',fs)
+        else
+            title(ax(1),sprintf('dep %d seg %d | %.1f m, %d min, %.1f m/day',dep_nums(i),j,round(depth,1),round(dur),round(m_obs,1)),'fontsize',fs)
+        end
+
         % save figure
-%         print(fig,fullfile(fig_dir,sprintf('segment_summary_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
+        if use_binmap
+            print(fig,fullfile(fig_dir,'adcp_bin_map',sprintf('segment_summary_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
+        else
+            print(fig,fullfile(fig_dir,sprintf('segment_summary_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
+        end
     end
 end

@@ -11,7 +11,7 @@ raw_dir = 'F:meltstake/data/raw';
 proc_dir = 'F:meltstake/data/proc';
 
 % choose deployment
-dep_num = 26;
+dep_num = 28;
 seg_tbl = loadMSInfo(dep_num,'segments');
 ns = size(seg_tbl,1);
 

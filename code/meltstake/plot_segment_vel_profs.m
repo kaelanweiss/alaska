@@ -8,6 +8,9 @@ clear
 proc_dir = 'F:/meltstake/data/proc';
 fig_dir = 'F:/meltstake/figures/segment_summary';
 
+% use bin-mapped data
+use_binmap = 1;
+
 load glacier_grl_2025/glacier_clrs.mat
 
 % segment info
@@ -32,11 +35,20 @@ for i = 1:ndeps
     dep_name = ms_tbl.Folder{ms_tbl.Number==dep_nums(i) & ms_tbl.Window==1};
     for j = 1:nsegs
         % load data
-        load(fullfile(proc_dir,dep_name,sprintf('adcp%d.mat',j)))
+        if use_binmap
+            load(fullfile(proc_dir,dep_name,'adcp_bin_map',sprintf('adcp%d.mat',j)))
+        else
+            load(fullfile(proc_dir,dep_name,sprintf('adcp%d.mat',j)))
+        end
 
         % compute profile things
-        rmax = ms_tbl.rmax(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j);
-        y = rmax/cosd(25) - adcp.burst.range;
+        if use_binmap
+            rmax = adcp.burst.range(end);
+            y = rmax - adcp.burst.range;
+        else
+            rmax = ms_tbl.rmax(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j);
+            y = rmax/cosd(25) - adcp.burst.range;
+        end
         vel_prof = squeeze(mean(adcp.burst.vel_ice(:,:,vel_comp_order),1,'omitnan')); % component means
         mag_comps = vecnorm(vel_prof,2,2); % magnitude of mean components
         tau = ms_tbl.tau_decorr(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j); % decorrelation
@@ -82,20 +94,28 @@ for i = 1:ndeps
         depth = ms_tbl.depth(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j);
         dur = ms_tbl.Duration(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j);
         m_obs = msTable2Vector(ms_tbl.m(ms_tbl.Number==dep_nums(i) & ms_tbl.Window==j))*.24;
-        title(ax(1),sprintf('dep %d seg %d | %.1f m, %d min, %.1f m/day',dep_nums(i),j,round(depth,1),round(dur),round(m_obs,1)),'fontsize',fs)
-        
+        if use_binmap
+            title(ax(1),sprintf('dep %d seg %d | %.1f m, %d min, %.1f m/day (binmap)',dep_nums(i),j,round(depth,1),round(dur),round(m_obs,1)),'fontsize',fs)
+        else
+            title(ax(1),sprintf('dep %d seg %d | %.1f m, %d min, %.1f m/day',dep_nums(i),j,round(depth,1),round(dur),round(m_obs,1)),'fontsize',fs)
+        end
+
         % see if attenuation of velocity magnitude is due to noncoherent
         % motion near the wall
-        fig2 = figure(2); clf
-        ax2 = axes(fig2);
-        hold on; box on
-        for k = 1:5
-            plot(ax2,rmax/cosd(25)-adcp.burst.range,squeeze(mean(abs(adcp.burst.vel_unw(:,:,k)),1,'omitnan')),'-','color',colors(k))
-        end
-        plot(ax2,y,vel_mag,'o-','color','k','markerfacecolor','k','linewidth',lw,'markersize',ms);
-        
+%         fig2 = figure(2); clf
+%         ax2 = axes(fig2);
+%         hold on; box on
+%         for k = 1:5
+%             plot(ax2,rmax/cosd(25)-adcp.burst.range,squeeze(mean(abs(adcp.burst.vel_unw(:,:,k)),1,'omitnan')),'-','color',colors(k))
+%         end
+%         plot(ax2,y,vel_mag,'o-','color','k','markerfacecolor','k','linewidth',lw,'markersize',ms);
+%         
         % save figure
         a = 1;
-%         print(fig,fullfile(fig_dir,sprintf('velocity_profiles_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
+        if use_binmap
+            print(fig,fullfile(fig_dir,'adcp_bin_map',sprintf('velocity_profiles_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
+        else
+            print(fig,fullfile(fig_dir,sprintf('velocity_profiles_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
+        end
     end
 end
