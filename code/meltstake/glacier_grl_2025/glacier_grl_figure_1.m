@@ -10,7 +10,7 @@ load F:/adv/mean_profile.mat
 proc_dir = 'F:/meltstake/data/proc';
 raw_dir = 'F:/meltstake/data/raw';
 
-ms_tbl = loadMSInfo(26:28,'manualwindows');
+ms_tbl = loadMSInfo(26:28,'segments');
 dep_nums = unique(ms_tbl.Number);
 
 % load segments

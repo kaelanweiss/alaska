@@ -10,28 +10,28 @@ load glacier_clrs.mat
 
 % collect velocity data
 % meltstake
-% fprintf('Meltstake data...\n')
-% raw_dir = 'F:/meltstake/data/raw';
-% ms_tbl = loadMSInfo(26:28,'manualwindows');
-% [dep_nums,uidx] = unique(ms_tbl.Number);
-% dep_names = ms_tbl.Folder(uidx);
-% ndeps = length(dep_nums);
-% 
-% ms24(ndeps) = struct('dep_name',[],'time',[],'range',[],'vel_ice',[]);
-% for i = 1:ndeps
-%     % loading
-%     load(fullfile(raw_dir,dep_names{i},'adcp','adcp.mat'))
-%     % indexing
-%     idxd = strcmp(ms_tbl.Folder,dep_names{i});
-%     idxt = adcp.burst.time >= ms_tbl.Start(find(idxd,1)) & adcp.burst.time <= ms_tbl.End(find(idxd,1,'last'));
-%     idxr = adcp.burst.range <= min(ms_tbl.rmax(idxd));
-%     % grabbing data
-%     ms24(i).dep_name = dep_names{i};
-%     ms24(i).time = adcp.burst.time(idxt);
-%     ms24(i).range = adcp.burst.range(idxr);
-%     ms24(i).vel_ice = adcp.burst.vel_ice(idxt,idxr,[1 3 2]);
-% end
-% clear adcp
+fprintf('Meltstake data...\n')
+raw_dir = 'F:/meltstake/data/raw';
+ms_tbl = loadMSInfo(26:28,'segments');
+[dep_nums,uidx] = unique(ms_tbl.Number);
+dep_names = ms_tbl.Folder(uidx);
+ndeps = length(dep_nums);
+
+ms24(ndeps) = struct('dep_name',[],'time',[],'range',[],'vel_ice',[]);
+for i = 1:ndeps
+    % loading
+    load(fullfile(raw_dir,dep_names{i},'adcp','adcp.mat'))
+    % indexing
+    idxd = strcmp(ms_tbl.Folder,dep_names{i});
+    idxt = adcp.burst.time >= ms_tbl.Start(find(idxd,1)) & adcp.burst.time <= ms_tbl.End(find(idxd,1,'last'));
+    idxr = adcp.burst.range <= min(ms_tbl.rmax(idxd));
+    % grabbing data
+    ms24(i).dep_name = dep_names{i};
+    ms24(i).time = adcp.burst.time(idxt);
+    ms24(i).range = adcp.burst.range(idxr);
+    ms24(i).vel_ice = adcp.burst.vel_ice(idxt,idxr,[1 3 2]);
+end
+clear adcp
 
 % 2024
 % workhorse (N1)

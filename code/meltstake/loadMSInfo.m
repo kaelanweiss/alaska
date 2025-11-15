@@ -21,7 +21,7 @@ function mstbl = loadMSInfo(varargin)
 % KJW
 % 30 Jan 2024
 
-TBL_PATH = 'G:Shared drives\Ice-ocean-interactions\science\Grad Students\Kaelan\meltstake_deployments.xlsx';
+TBL_PATH = 'G:\Shared drives\Ice-ocean-interactions\science\Grad Students\Kaelan\meltstake_deployments.xlsx';
 
 % parse varargin
 deps = nan;

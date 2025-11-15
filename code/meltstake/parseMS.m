@@ -12,7 +12,8 @@ clear
 % raw_path = 'S:data/raw/meltstake/';
 raw_path = 'F:\meltstake\data\raw';
 
-dep_num = 27;
+% CAREFUL RUNNING THIS ON OLD DEPLOYMENTS, IT WILL DELETE UNWRAPPED DATA
+dep_num = 26;
 ms_tbl = loadMSInfo(dep_num);
 
 % deployment name
@@ -103,18 +104,18 @@ title('HOBO C')
 %% save files
 if save_files
     % T
-    save(fullfile(dep_path,'rbr','T.mat'),'T')
+%     save(fullfile(dep_path,'rbr','T.mat'),'T')
 
     % ADCP
     save(fullfile(dep_path,'adcp','adcp.mat'),'adcp','-v7.3')
 
     % ADV
-    save(fullfile(dep_path,'adv','adv.mat'),'adv','raw')
+%     save(fullfile(dep_path,'adv','adv.mat'),'adv','raw')
 
     % CTD
-    save(fullfile(dep_path,'ctd','ctd.mat'),'ctd')
+%     save(fullfile(dep_path,'ctd','ctd.mat'),'ctd')
 
     % HOBO
-    save(fullfile(dep_path,'hobo','hobo.mat'),'hobo')
+%     save(fullfile(dep_path,'hobo','hobo.mat'),'hobo')
 
 end

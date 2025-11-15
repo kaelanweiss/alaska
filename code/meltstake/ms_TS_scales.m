@@ -11,8 +11,8 @@
 
 clear
 
-dep_nums = 26:28; % set to "nan" to load all
-ms_tbl = loadMSInfo(dep_nums,'manualwindows');
+dep_nums = 28; % set to "nan" to load all
+ms_tbl = loadMSInfo(dep_nums,'segments');
 
 dep_names = unique(ms_tbl.Folder,'stable');
 n_deps = length(dep_names);
@@ -23,7 +23,8 @@ depth = nan(n_all,1);
 T = nan(n_all,2);
 S = nan(n_all,2);
 T_ctd = nan(n_all,2);
-nS = nan(n_all,1);
+S_ctd = nan(n_all,2);
+nS_ctd = nan(n_all,1);
 pos = 0;
 
 % loop through deployments
@@ -77,6 +78,13 @@ for i = 1:n_deps
             T(pos,:) = [mean(T_solo.T.T,'all','omitnan') std(T_solo.T.T(:),'omitnan')];
         end
 
+        % salinity (onboard)
+        S_file = fullfile(proc_dir,sprintf('hobo%d.mat',j));
+        if exist(S_file,'file')
+            S_hobo = load(S_file);
+            S(pos,:) = [mean(S_hobo.hobo.S(:,2),'all','omitnan') std(S_hobo.hobo.S(:,2),'omitnan')];
+        end
+
         % CTD salinity and temperature
         t_pad = 0.5*(t2-t1);
         if includeS
@@ -91,17 +99,17 @@ for i = 1:n_deps
                 fprintf('expanding search window\n')
             end
             
-            Sj = S_all_ctd(idxz,idxt);
+            Sctdj = S_all_ctd(idxz,idxt);
             Tctdj = T_all_ctd(idxz,idxt);
-            nS(pos) = numel(Sj);
-            S(pos,:) = [mean(Sj,'all','omitnan') std(Sj(:),'omitnan')];
+            nS_ctd(pos) = numel(Sctdj);
+            S_ctd(pos,:) = [mean(Sctdj,'all','omitnan') std(Sctdj(:),'omitnan')];
             T_ctd(pos,:) = [mean(Tctdj,'all','omitnan') std(Tctdj(:),'omitnan')];
             
         end
     end
 end
 
-%%
+%% print for entering in table
 fprintf('depth:\n')
 printScale(depth,1)
 
@@ -114,8 +122,11 @@ printScale(S,1)
 fprintf('\nT_ctd scale:\n')
 printScale(T_ctd,1)
 
-fprintf('\nnumber of S samples:\n')
-printScale(nS,0)
+fprintf('\nS_ctd scale:\n')
+printScale(S_ctd,1)
+
+fprintf('\nnumber of S_ctd samples:\n')
+printScale(nS_ctd,0)
 
 function printScale(X,dec)
     n = size(X,1);

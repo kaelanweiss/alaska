@@ -39,6 +39,10 @@ if nargin == 2 || nargin == 4
     rbr_dir = varargin{end};
 end
 
+% Get files
+fnames = {dir(fullfile(depname,rbr_dir,'*.rsk')).name};
+nf = length(fnames);
+
 % Look for instrument.txt file
 if exist(fullfile(depname,rbr_dir,'instruments.txt'),'file')
     fprintf('using instrument.txt file\n');
@@ -48,7 +52,7 @@ if exist(fullfile(depname,rbr_dir,'instruments.txt'),'file')
     
 else
     fprintf('no instrument.txt file found\n');
-    rbr = struct();
+    rbr(nf) = struct();
     sn = [];
 end
 
@@ -58,23 +62,24 @@ if ~exist(fullfile(depname,rbr_dir),'dir')
     return
 end
 
-% Get files
-fnames = {dir(fullfile(depname,rbr_dir,'*.rsk')).name};
-nf = length(fnames);
-
 % read files
 for i = 1:nf
     fprintf('%d/%d\n',i,nf);
 
     % shift time vector
-    if isfield(rbr(i),'t_offset') && ~isnan(rbr(i).t_offset)
-        dt = rbr(i).t_offset;
+    if ~isfield(rbr(i),'t_offset') || isempty(rbr(i).t_offset) || isnan(rbr(i).t_offset)
+        dt = 0;
     else
-        dt = seconds(0);
+        dt = rbr(i).t_offset;
     end
+%     if isfield(rbr(i),'t_offset') && (~isnan(rbr(i).t_offset) || ~isempty(rbr(i).t_offset))
+%         dt = rbr(i).t_offset;
+%     else
+%         dt = seconds(0);
+%     end
 
     rsk = RSKopen(fullfile(depname,rbr_dir,fnames{i}));
-    rsk = RSKreaddata(rsk,'t1',datenum(t1)-days(dt),'t2',datenum(t2)-days(dt));
+    rsk = RSKreaddata(rsk,'t1',datenum(t1)-dt/86400,'t2',datenum(t2)-dt/86400);
     % read data channels depending on what type of instrument
     if regexp(rsk.instruments.model,'solo')
         ch_idx = [1];

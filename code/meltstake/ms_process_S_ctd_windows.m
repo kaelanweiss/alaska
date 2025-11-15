@@ -6,6 +6,7 @@
 % "ms_process_vel_windows.mat" should be run before so that processed ctd 
 % and adcp (depth) files exist.
 %
+%
 % KJW
 % 24 Mar 2024
 
@@ -14,10 +15,7 @@ clear
 % extend time window of section
 t_pad = minutes(5);
 
-tbl_path = 'G:Shared drives\Ice-ocean-interactions\science\Grad Students\Kaelan\meltstake_deployments.xlsx';
-% tbl_path = 'F:meltstake\metadata\meltstake_deployments.xlsx';
-
-ms_tbl = readtable(tbl_path,'sheet','manualwindows');
+ms_tbl = loadMSInfo('segments');
 
 dep_nums = unique(ms_tbl.Number,'stable');
 dep_names = unique(ms_tbl.Folder,'stable');

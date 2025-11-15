@@ -6,9 +6,9 @@ clear
 raw_dir = 'F:/meltstake/data/raw';
 unw_dir = 'F:/meltstake/data/unwrap';
 
-% dep = 'ms02_20240712_2020';
+dep = 'ms02_20240712_2020';
 % dep = 'ms02_20240715_2001';
-dep = 'ms01_20240717_0050';
+% dep = 'ms01_20240717_0050';
 
 if ~exist(fullfile(unw_dir,dep),'dir')
     mkdir(fullfile(unw_dir,dep))

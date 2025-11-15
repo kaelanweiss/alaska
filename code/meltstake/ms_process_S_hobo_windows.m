@@ -1,10 +1,10 @@
-% Script to process and save T data in each meltstake deployment window.
+% Script to process and save hobo data in each meltstake deployment window.
 % This takes data from the raw directory, cuts it into chunks according to
 % "meltstake_deployments.xlsx", and saves the data to the processed 
 % directory.
 %
 % KJW
-% 22 Mar 2024
+% 10 Nov 2025
 
 clear
 
@@ -15,24 +15,31 @@ dep_names = unique(ms_tbl.Folder,'stable');
 n_deps = length(dep_nums);
 
 %% loop through deployments
-for i = 17:19%1:n_deps
+for i = 1:n_deps
 
     fprintf('====== DEPLOYMENT %d (%s) ======\n',dep_nums(i),dep_names{i})
     idx_dep = dep_nums(i)==ms_tbl.Number;
     
     % load data
     raw_fldr = fullfile('F:meltstake\data\raw',dep_names{i});
-    % Temp
-    if exist(fullfile(raw_fldr,'rbr','T.mat'),'file')
-        load(fullfile(raw_fldr,'rbr','T.mat'))
-        time_all = dn2dt(T(1).time);
-        T_all = repmat(T(1).values,[1 length(T)]);
-        for j = 2:length(T)
-            T_all(:,j) = T(j).values;
-        end
+    % hobo file
+    if exist(fullfile(raw_fldr,'hobo','hobo.mat'),'file')
+        load(fullfile(raw_fldr,'hobo','hobo.mat'))
+        hobo_all = hobo;
     else
-        warning('No temperature data found')
+        warning('No hobo data found')
         continue
+    end
+
+    % unified time axis
+    time_all = hobo_all(1).time;
+    nt = length(time_all);
+    nh = length(hobo);
+    T = nan(nt,nh);
+    S = nan(nt,nh);
+    for j = 1:nh
+        T(:,j) = interp1(hobo(j).time,hobo(j).T_cal,time_all,'nearest');
+        S(:,j) = interp1(hobo(j).time,hobo(j).S,time_all,'nearest');
     end
     
     % window
@@ -50,13 +57,12 @@ for i = 17:19%1:n_deps
         idxt = time_all>=t1 & time_all<=t2;
         
         % trim data down to time and range for each window
-        T = struct('time',time_all(idxt),'T',T_all(idxt,:));
+        hobo = struct('time',time_all(idxt),'T',T(idxt,:),'S',S(idxt,:));
     
         % save trimmed and processed data structure
-        proc_file = fullfile('F:meltstake\data\proc',dep_names{i},sprintf('T%d.mat',j));
+        proc_file = fullfile('F:meltstake\data\proc',dep_names{i},sprintf('hobo%d.mat',j));
         fprintf('saving %s\n',proc_file)
-        save(proc_file,'T')
-        fprintf('%.1f (%.1f)\n',round(mean(T.T,'all','omitnan'),1))
+        save(proc_file,'hobo')
     
     end
 end

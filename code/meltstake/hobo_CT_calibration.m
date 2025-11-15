@@ -10,7 +10,7 @@ raw_dir = 'F:/meltstake/data/raw';
 load glacier_grl_2025\glacier_clrs.mat
 
 % choose deployment
-ms_tbl = loadMSInfo(28);
+ms_tbl = loadMSInfo(27);
 save_data = 1;
 
 % specify C calibration times (when ROV CTD and Hobos should be ~same)
@@ -291,5 +291,5 @@ linkaxes(ax_TS)
 
 %% save updated hobo data
 if save_data
-    save(fullfile(raw_dir,ms_tbl.Folder{1},'hobo','hobo.mat'),'hobo')
+%     save(fullfile(raw_dir,ms_tbl.Folder{1},'hobo','hobo.mat'),'hobo')
 end
