@@ -41,7 +41,7 @@ end
 
 %% prep adcp data
 % where to sample for PSDs and velocities
-y_s = [0.12 0.21] + 1e-6*[-1 1]; % distance from wall 
+y_s = [0.15] + 1e-6*[-1 1]; % distance from wall 
 for i = 1:length(adcp)
     adcp(i).range = round(double(adcp(i).range),4);
     y_max = adcp(i).range(end);
@@ -64,11 +64,16 @@ for i = 1:length(adcp)
     [Pb,fb,M,S_ci] = progressiveBin(adcp(i).f,adcp(i).Puvw(:,1),nf,nf_bins);
     adcp(i).fbin = fb;
     adcp(i).Pbin = repmat(Pb,[1 3]);
+    adcp(i).Pbin_beam = repmat(Pb,[1 5]);
     adcp(i).Mbin = M;
     adcp(i).S_ci = S_ci;
     for j = 2:3
         adcp(i).Pbin(:,j) = progressiveBin(adcp(i).f,adcp(i).Puvw(:,j),nf,nf_bins);
     end
+    for j = 1:5
+        adcp(i).Pbin_beam(:,j) = progressiveBin(adcp(i).f,mean(adcp(i).P(:,adcp(i).idx_s,j),2),nf,nf_bins);
+    end
+    adcp(i).Pbin(:,2) = adcp(i).Pbin(:,2)/sind(25); % test
 end
 
 % CPDFs of BL energy
@@ -77,14 +82,16 @@ for i = 1:length(adcp)
     nfb = length(fbi);
     
     % straight CPDF
-    adcp(i).CPDF = cumtrapz(fbi,sum(adcp(i).Pbin,2));
+    adcp(i).CPDF = cumtrapz(fbi,sum(adcp(i).Pbin,2)); % all components
+    adcp(i).CPDF = cumtrapz(fbi,sum(adcp(i).Pbin(:,[1]),2)); % just u (to minimize noise effects)
     
     % CPDF assuming remaining variance follows f^-5/3
     CPDF_turb = nan(nfb,1);
     
     %fig = figure(i+1); axi = axes(fig); hold on; set(axi,'xscale','log','yscale','log')
 
-    Pb_all = sum(adcp(i).Pbin,2);
+%     Pb_all = sum(adcp(i).Pbin,2); % all components
+    Pb_all = sum(adcp(i).Pbin(:,[1]),2); % just u
     for j = 1:nfb
         Pj_0 = Pb_all(j);
         fj_0 = fbi(j);
@@ -136,9 +143,9 @@ clear h_psd
 for i = 1:length(adcp)
     % CPDFs
     yyaxis(ax(i+3),'right')
-    h_psd(4) = plot(ax(i+3),adcp(i).fbin,adcp(i).CPDF/adcp(i).CPDF(end),'--','color',0.5*[1 1 1]);
-    h_psd(5) = plot(ax(i+3),adcp(i).fbin,hannFilter(adcp(i).CPDF_turb,10)/adcp(i).CPDF(end),'-','color',0.5*[1 1 1]);
-    set(ax(i+3),'ytick',[],'ycolor','k')
+    h_psd(4) = plot(ax(i+3),adcp(i).fbin,adcp(i).CPDF/adcp(i).CPDF(end),'-','color',0.*[1 1 1]);
+    %h_psd(5) = plot(ax(i+3),adcp(i).fbin,hannFilter(adcp(i).CPDF_turb,10)/adcp(i).CPDF(end),'-','color',0.5*[1 1 1]);
+    set(ax(i+3),'ytick',0:0.25:1,'ycolor','k','fontsize',fs-1)
     ylim(ax(i+3),[0 1])
     yyaxis(ax(i+3),'left')
     set(ax(i+3),'ycolor','k')
@@ -154,11 +161,11 @@ for i = 1:length(adcp)
         set(ax(i+3),'xscale','log','yscale','log')
     end
     % slope line
-    plot(ax(i+3),f_slope,A*f_slope.^(-5/3),'k-')
+    plot(ax(i+3),f_slope,A*f_slope.^(-5/3),'k--')
     
 end
-lgd1 = legend(ax(6),h_psd,{'u','v','w','CPDF','+f^{-5/3} est.'},'fontsize',fs-1);
-lgd1.Position(1) = sum(ax(6).Position([1 3]))+.01;
+lgd1 = legend(ax(6),h_psd,{'u','v','w','CPDF'},'fontsize',fs-1);
+lgd1.Position(1) = sum(ax(6).Position([1 3]))+.04;
 
 % wind roses
 vbins = [0 .05 .1 .25 .4];
@@ -210,7 +217,7 @@ S0 = [26.7 27.8 28];
 T0 = [6 6.9 7.1];
 fmix = [12/100 2/100];
 
-ms = 4;
+ms = 3;
 for i = 1:3
     % mixing lines
     T_ml = [T0(i)*(1-fmix(1)) T0(i) T0(i)*(1-fmix(2))-90*fmix(2)];
@@ -218,15 +225,34 @@ for i = 1:3
     plot(ax(6+i),S_ml,T_ml,'k-','linewidth',lw)
     % TS points
     idxt = hobo(i).time >= dep_tbl.Start(i) & hobo(i).time <= dep_tbl.End(i);
-    ti = hobo(i).time(idxt); ti = hours(ti-ti(1));
+    ti = hobo(i).time(idxt);
     Si = hannFilter(hobo(i).S(idxt),1);
     Ti = hannFilter(hobo(i).T_cal(idxt),1);
-    plot(ax(6+i),Si,Ti,'k-')
-    scatter(ax(6+i),Si,Ti,ms,ti,'filled')
-    cmocean('-rain',ax(6+i))
+    fmi = (T0(3)-Ti)/(T0(3)+90); % melt fraction
+    fsi = 1-Ti/T0(i); % fresh fraction
+    rho0 = gsw_rho(S0(i),T0(i),ms_depth(i)); % outer density
+    rhoi = gsw_rho(Si,Ti,ms_depth(i)); % bl density
+    buoyi = (9.8/rho0)*(rho0-rhoi);
+    % color by velocity
+    umagi = interp1(adcp(i).time,hannFilter(vecnorm(adcp(i).uvw(:,[1 3]),2,2),4),ti,'nearest','extrap');
+    wi = interp1(adcp(i).time,hannFilter(adcp(i).uvw(:,3),4),ti,'nearest','extrap');
+    wi = detrend(wi,'omitnan');
+    [s_mag,sidx] = sort(umagi);
+    u_norm = s_mag(ceil(0.9*length(umagi)));
+    w_norm = 1*std(wi,'omitnan');
+    [n_hist,edge_hist] = histcounts(umagi/u_norm,120);
+%     plot(ax_h,edge_hist(1:end-1),n_hist/max(n_hist),'.-')
+    ti = hours(ti-ti(1));
+    idxi = randperm(length(Si));
+%     plot(ax(6+i),Si,Ti,'k-')
+    scatter(ax(6+i),Si,Ti,ms,umagi/u_norm,'filled')
+%     scatter(ax(6+i),Si(idxi),Ti(idxi),ms,wi(idxi)/w_norm,'filled')
+    cmocean('curl',ax(6+i))
+    %max(umagi)
 end
 cbar = colorbar(ax(9),'position',cbarpos(ax(9),.01,.02));
-cbar.Label.String = 'time [hr]';
+cbar.Label.String = '(u^2+w^2)^{1/2}/U_{90%}';
+% cbar.Label.String = 'w''/\sigma_w';
 cbar.Label.FontSize = fs-1;
 
 % dep labels
@@ -241,8 +267,13 @@ linkaxes(ax(4:6))
 for i = [5 6]
     set(ax(i),'yticklabel',{})
 end
+for i = [4 5]
+    yyaxis(ax(i),'right')
+    set(ax(i),'yticklabel',{})
+    yyaxis(ax(i),'left')
+end
 % psds
-ylabel(ax(4),'\Psi_{u} [m^2/s^2 cps^{-1}]','fontsize',fs)
+ylabel(ax(4),'\Psi_{u_i} [m^2/s^2 cps^{-1}]','fontsize',fs)
 for i = 4:6
     set(ax(i),'xtick',10.^(-6:2:2))
     set(ax(i),'ytick',10.^(-6:2:2))
@@ -255,10 +286,11 @@ xlim(ax(4),[10^-4 6])
 for i = 7:9
     xlabel(ax(i),'S [psu]','fontsize',fs)
     clim(ax(i),[0 3])
+    clim(ax(i),2.5*[-1 1])
+    clim(ax(i),[0 1])
 end
 ylabel(ax(7),'T [\circC]','fontsize',fs)
-
-
-
-
+xlim(ax(7),[24.8 S0(1)]); ylim(ax(7),[4 T0(1)])
+xlim(ax(8),[24.5 S0(2)]); ylim(ax(8),[5 T0(2)])
+xlim(ax(9),[25.5 S0(3)]); ylim(ax(9),[5.8 T0(3)])
 

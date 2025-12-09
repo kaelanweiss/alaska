@@ -8,7 +8,7 @@ clear
 
 load('G:\Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Polly\deployments_all\adcp_combo_QC.mat')
 load('G:\Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Polly\deployments_all\term_combo.mat')
-load('G:\Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Polly\deployments_all\ctd_combo.mat')
+load('G:\Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Polly\deployments_all\old\ctd_combo.mat')
 
 % just keep glacier data
 idx_glac = false(length(adcp),1);

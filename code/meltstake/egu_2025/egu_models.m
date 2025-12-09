@@ -11,7 +11,7 @@ load clrs_egu.mat
 mod_glac = load('../../../data/melt_models_glacier.mat');
 mod_berg = load('../../../data/melt_models.mat');
 mod_tau = load('melt_3eqn_tau.mat');
-ms_tbl = loadMSInfo('manualwindows');
+ms_tbl = loadMSInfo('segments');
 
 % separate glacier and berg data
 iglc = ms_tbl.Number >= 26;

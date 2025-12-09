@@ -1,11 +1,12 @@
 % Create a plot to compare momentum, temperature, salinity, and melt rate
-% between Polly, meltstakes, and moorings(?)
+% between Polly, meltstakes
 %
 % KJW
 % 10 Nov 2025
 clear
 
 addpath('..')
+load glacier_clrs
 
 % load data
 load platform_comparison_data\polly_data.mat

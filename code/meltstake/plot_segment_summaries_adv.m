@@ -10,7 +10,7 @@ raw_dir = 'F:/meltstake/data/raw';
 fig_dir = 'F:/meltstake/figures/adv_velocity';
 
 % segment info
-ms_tbl = loadMSInfo(26:28,'manualwindows');
+ms_tbl = loadMSInfo(26:28,'segments');
 
 dep_nums = unique(ms_tbl.Number);
 ndeps = length(dep_nums);
@@ -28,7 +28,7 @@ load egu_2025\clrs_egu.mat
 load F:/adv/mean_profile.mat
 
 % loop through deployment
-for i = 3:ndeps
+for i = 1:ndeps
     nsegs = sum(ms_tbl.Number==dep_nums(i));
     dep_name = ms_tbl.Folder{ms_tbl.Number==dep_nums(i) & ms_tbl.Window==1};
     seg_start = ms_tbl.Start(ms_tbl.Number==dep_nums(i));
