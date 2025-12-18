@@ -75,7 +75,7 @@ for i = 1:ndeps
 end
 
 %% save
-save platform_comparison_data\ms_psd.mat adcp
+% save platform_comparison_data\ms_psd.mat adcp
 
 
 

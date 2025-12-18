@@ -6,13 +6,13 @@
 clear
 
 % load
-seg_tbl = loadMSInfo(27,'segments');
+seg_tbl = loadMSInfo(28,'segments');
 load(sprintf('F:/meltstake/data/raw/%s/adcp/adcp.mat',seg_tbl.Folder{1}))
 
 %% indexing
 seg_num = 10;
-idx_att = adcp.attitude.time>=seg_tbl.Start(seg_num) & adcp.attitude.time<=seg_tbl.End(seg_num);
-idx_vel = adcp.burst.time>=seg_tbl.Start(seg_num) & adcp.burst.time<=seg_tbl.End(seg_num);
+idx_att = adcp.attitude.time>=seg_tbl.Start(1) & adcp.attitude.time<=seg_tbl.End(end);
+idx_vel = adcp.burst.time>=seg_tbl.Start(1) & adcp.burst.time<=seg_tbl.End(end);
 idx_r = adcp.burst.range < min(seg_tbl.rmax);
 
 % data

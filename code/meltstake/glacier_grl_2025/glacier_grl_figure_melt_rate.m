@@ -42,6 +42,7 @@ m_ci_h = m_ci_h*cmh2md;
 
 % melt ratio
 r = m(inc)./[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)];
+r_ci = m_ci_l(inc)./[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)];
 r_crs = m(inc)./[mod_berg.m_mean(:,5); mod_glac.m_mean(:,5)];
 
 % standard error
@@ -54,7 +55,7 @@ u_ci = u_ci./sqrt(Neff);
 %% plot
 lw = 0.5;
 fs = 11;
-marker_scale = 40;
+marker_scale = 30;
 berg_marker = 'diamond';
 
 hist_lvls = -1.5:0.15:2.3;

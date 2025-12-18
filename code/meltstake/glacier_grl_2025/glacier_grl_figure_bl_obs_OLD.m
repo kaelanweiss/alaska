@@ -16,34 +16,29 @@ load glacier_clrs.mat
 dep_tbl = loadMSInfo(26:28);
 seg_tbl = loadMSInfo(26:28,'segments');
 
+%% load hobo, T, polly ctd data
+clear hobo T ctd
+for i = 1:3
+    % hobo
+    hobo_load = load(fullfile(raw_dir,dep_tbl.Folder{i},'hobo','hobo.mat'));
+    hobo(i) = hobo_load.hobo(2);
+    % solos
+    T_load = load(fullfile(raw_dir,dep_tbl.Folder{i},'rbr','T.mat'));
+    T(i) = struct('time',T_load.T(2).time,'T',T_load.T(2).values);
+    % polly ctd
+    ctd_load = load(fullfile(proc_dir,dep_tbl.Folder{i},'ctd.mat'));
+    ctd(i) = ctd_load.ctd(strcmp({ctd_load.ctd.vessel},'polly'));
+end
+
+%% average outer TS conditions
+dz = 2;
 ms_depth = nan(3,1);
 for i = 1:3
     ms_depth(i) = mean(seg_tbl.depth(seg_tbl.Number==dep_tbl.Number(i)));
+    idxd = abs(ctd(i).depth-ms_depth(i)) <= dz;
+    ctd(i).T_ms = max(ctd(i).T(idxd,:),[],'all','omitnan');
+    ctd(i).S_ms = max(ctd(i).S(idxd,:),[],'all','omitnan');
 end
-
-%% load hobo, T, polly ctd data
-% clear hobo T ctd
-% for i = 1:3
-%     % hobo
-%     hobo_load = load(fullfile(raw_dir,dep_tbl.Folder{i},'hobo','hobo.mat'));
-%     hobo(i) = hobo_load.hobo(2);
-%     % solos
-%     T_load = load(fullfile(raw_dir,dep_tbl.Folder{i},'rbr','T.mat'));
-%     T(i) = struct('time',T_load.T(2).time,'T',T_load.T(2).values);
-%     % polly ctd
-%     ctd_load = load(fullfile(proc_dir,dep_tbl.Folder{i},'ctd.mat'));
-%     ctd(i) = ctd_load.ctd(strcmp({ctd_load.ctd.vessel},'polly'));
-% end
-% 
-% %% average outer TS conditions
-% dz = 2;
-% ms_depth = nan(3,1);
-% for i = 1:3
-%     ms_depth(i) = mean(seg_tbl.depth(seg_tbl.Number==dep_tbl.Number(i)));
-%     idxd = abs(ctd(i).depth-ms_depth(i)) <= dz;
-%     ctd(i).T_ms = max(ctd(i).T(idxd,:),[],'all','omitnan');
-%     ctd(i).S_ms = max(ctd(i).S(idxd,:),[],'all','omitnan');
-% end
 
 %% prep adcp data
 % where to sample for PSDs and velocities
@@ -117,7 +112,7 @@ lw = 0.8;
 fs = 10;
 alpha = 0.5;
 
-fig_size = [15 12.5*4/3]*1.;
+fig_size = [15 12.5]*1.;
 fig = figure(1); clf
 setFigureSize(fig,fig_size);
 clear ax
@@ -130,20 +125,17 @@ A0 = 8e-4;
 A = A0*f_slope(1)^(5/3);
 
 % create axes
-for i = 1:12
-    ax(i) = axes(fig,'position',axgridpos(4,3,i,pad,shift),'fontsize',fs-1);
+for i = 1:9
+    ax(i) = axes(fig,'position',axgridpos(3,3,i,pad,shift),'fontsize',fs-1);
     box(ax(i),'on')
     hold(ax(i),'on')
 end
-% shift middle rows up
+% shift middle row up
 for i = 4:6
     ax(i).Position(2) = ax(i).Position(2) + .04;
 end
+% shrink bottom row in the x dir a little to make room for labels
 for i = 7:9
-    ax(i).Position(2) = ax(i).Position(2) + .02;
-end
-% shrink bottom row in the x dir a little to make room for y labels
-for i = 7:12
     ax(i).Position(3) = ax(i).Position(3) - .015;
 end
 
@@ -170,11 +162,11 @@ for i = 1:length(adcp)
         set(ax(i+3),'xscale','log','yscale','log')
     end
     % slope line
-%     plot(ax(i+3),f_slope,A*f_slope.^(-5/3),'k--')
+    plot(ax(i+3),f_slope,A*f_slope.^(-5/3),'k--')
     
 end
-lgd1 = legend(ax(6),h_psd,{'u','v','w','cpdf'},'fontsize',fs-1);
-lgd1.Position(1) = sum(ax(6).Position([1 3]))+.05;
+lgd1 = legend(ax(6),h_psd,{'u','v','w','CPDF'},'fontsize',fs-1);
+lgd1.Position(1) = sum(ax(6).Position([1 3]))+.04;
 
 % wind roses
 vbins = [0 .05 .1 .25 .4];
@@ -190,12 +182,12 @@ for i = 1:3
     dir = atan2(wi,ui)*180/pi;
     % plotting
     options{2} = ax(i);
-    options{4} = {'','','',''};
+    options{4} = {'','','',''};%dir_lbls{i};
     WindRose(dir,spd,options);
-    text(ax(i),.02,0.5,'+u','fontsize',fs-1,'units','normalized')
-    text(ax(i),1-.1,0.5,'-u','fontsize',fs-1,'units','normalized')
-    text(ax(i),0.5,0.95,'+w','fontsize',fs-1,'units','normalized','horizontalalignment','center')
-    text(ax(i),0.5,0.06,'-w','fontsize',fs-1,'units','normalized','horizontalalignment','center')
+    text(ax(i),.02,0.5,'+u','fontsize',fs-2,'units','normalized')
+    text(ax(i),1-.1,0.5,'-u','fontsize',fs-2,'units','normalized')
+    text(ax(i),0.5,0.95,'+w','fontsize',fs-2,'units','normalized','horizontalalignment','center')
+    text(ax(i),0.5,0.06,'-w','fontsize',fs-2,'units','normalized','horizontalalignment','center')
 end
 % legend
 idx_patch = zeros(length(vbins),1);
@@ -227,33 +219,42 @@ T0 = [6 6.9 7.1];
 fmix = [12/100 2/100];
 
 ms = 3;
-n_min = 4;
 for i = 1:3
-    % gridded TS
-    u_magi = grid_TS(i).u_mag;
-    u_magi(grid_TS(i).n<n_min) = nan;
-    wi = grid_TS(i).w_prime;
-    wi(grid_TS(i).n<n_min) = nan;
-    pcolor(ax(6+i),grid_TS(i).S(2:end),grid_TS(i).T(2:end),u_magi')
-    shading(ax(6+i),'flat')
-    cmocean('dense',ax(6+i))
-
-    pcolor(ax(9+i),grid_TS(i).S(2:end),grid_TS(i).T(2:end),wi')
-    shading(ax(9+i),'flat')
-    cmocean('curl',ax(9+i))
-
     % mixing lines
     T_ml = [T0(i)*(1-fmix(1)) T0(i) T0(i)*(1-fmix(2))-90*fmix(2)];
     S_ml = [S0(i)*(1-fmix(1)) S0(i) S0(i)*(1-fmix(2))];
     plot(ax(6+i),S_ml,T_ml,'k-','linewidth',lw)
-    plot(ax(9+i),S_ml,T_ml,'k-','linewidth',lw)
+    % TS points
+    idxt = hobo(i).time >= dep_tbl.Start(i) & hobo(i).time <= dep_tbl.End(i);
+    ti = hobo(i).time(idxt);
+    Si = hannFilter(hobo(i).S(idxt),1);
+    Ti = hannFilter(hobo(i).T_cal(idxt),1);
+    fmi = (T0(3)-Ti)/(T0(3)+90); % melt fraction
+    fsi = 1-Ti/T0(i); % fresh fraction
+    rho0 = gsw_rho(S0(i),T0(i),ms_depth(i)); % outer density
+    rhoi = gsw_rho(Si,Ti,ms_depth(i)); % bl density
+    buoyi = (9.8/rho0)*(rho0-rhoi);
+    % color by velocity
+    umagi = interp1(adcp(i).time,hannFilter(vecnorm(adcp(i).uvw(:,[1 3]),2,2),4),ti,'nearest','extrap');
+    wi = interp1(adcp(i).time,hannFilter(adcp(i).uvw(:,3),4),ti,'nearest','extrap');
+    wi = detrend(wi,'omitnan');
+    [s_mag,sidx] = sort(umagi);
+    u_norm = s_mag(ceil(0.9*length(umagi)));
+    w_norm = 1*std(wi,'omitnan');
+    [n_hist,edge_hist] = histcounts(umagi/u_norm,120);
+%     plot(ax_h,edge_hist(1:end-1),n_hist/max(n_hist),'.-')
+    ti = hours(ti-ti(1));
+    idxi = randperm(length(Si));
+%     plot(ax(6+i),Si,Ti,'k-')
+    scatter(ax(6+i),Si,Ti,ms,umagi/u_norm,'filled')
+%     scatter(ax(6+i),Si(idxi),Ti(idxi),ms,wi(idxi)/w_norm,'filled')
+    cmocean('curl',ax(6+i))
+    %max(umagi)
 end
-cbar1 = colorbar(ax(9),'position',cbarpos(ax(9),.01,.02));
-cbar1.Label.String = '(u^2+w^2)^{1/2}/U_{90%}';
-cbar1.Label.FontSize = fs-1;
-cbar2 = colorbar(ax(12),'position',cbarpos(ax(12),.01,.02));
-cbar2.Label.String = 'w''/\sigma_w';
-cbar2.Label.FontSize = fs-1;
+cbar = colorbar(ax(9),'position',cbarpos(ax(9),.01,.02));
+cbar.Label.String = '(u^2+w^2)^{1/2}/U_{90%}';
+% cbar.Label.String = 'w''/\sigma_w';
+cbar.Label.FontSize = fs-1;
 
 % dep labels
 for i = 1:3
@@ -272,10 +273,6 @@ for i = [4 5]
     set(ax(i),'yticklabel',{})
     yyaxis(ax(i),'left')
 end
-yyaxis(ax(6),'right')
-set(ax(6),'ytick',0:0.2:1)
-yyaxis(ax(6),'left')
-
 % psds
 ylabel(ax(4),'\Psi_{u_i} [m^2/s^2 cps^{-1}]','fontsize',fs)
 for i = 4:6
@@ -287,27 +284,14 @@ end
 xlim(ax(4),[10^-4 6])
 
 % TS
-% u_mag
 for i = 7:9
     xlabel(ax(i),'S [psu]','fontsize',fs)
-    clim(ax(i),[0.3 1])
-    linkaxes(ax([i i+3]))
-end
-for i = 10:12
-    xlabel(ax(i),'S [psu]','fontsize',fs)
-    clim(ax(i),1.3*[-1 1])
+    clim(ax(i),[0 3])
+    clim(ax(i),2.5*[-1 1])
+    clim(ax(i),[0 1])
 end
 ylabel(ax(7),'T [\circC]','fontsize',fs)
-ylabel(ax(10),'T [\circC]','fontsize',fs)
-% xlim(ax(7),[25 26.5]); ylim(ax(7),[4.5 5.8])
-% xlim(ax(8),[25 grid_TS(2).S(end)]); ylim(ax(8),[5.2 grid_TS(2).T(end)])
-% xlim(ax(9),[26 grid_TS(3).S(end)]); ylim(ax(9),[6 grid_TS(3).T(end)])
-xlim(ax(7),[25 S0(1)]); ylim(ax(7),[4.5 T0(1)])
-xlim(ax(8),[25 S0(2)]); ylim(ax(8),[5.2 T0(2)])
-xlim(ax(9),[26 S0(3)]); ylim(ax(9),[6 T0(3)])
-
-% panel lbls
-for i = 1:length(ax)
-    text(ax(i),.02,1,[char(96+i) ')'],'units','normalized','fontsize',fs-1,'horizontalalignment','left','verticalalignment','top')
-end
+xlim(ax(7),[24.8 S0(1)]); ylim(ax(7),[4 T0(1)])
+xlim(ax(8),[24.5 S0(2)]); ylim(ax(8),[5 T0(2)])
+xlim(ax(9),[25.5 S0(3)]); ylim(ax(9),[5.8 T0(3)])
 
