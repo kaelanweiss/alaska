@@ -55,7 +55,7 @@ setFigureSize(fig,fig_size);
 clear ax
 
 pad = [.02 .015 .12 .07];
-shift = [0 0.02];
+shift = [0.02 0.02];
 
 % limits
 VLIM = 0.32;
@@ -116,7 +116,7 @@ for i = 1:3
     cmocean('ice',ax(ax0+4))
     dt = diff(ms(i).adcp.burst.time([1 end]));
     plot(ax(ax0+4),[0 dt]+ms(i).adcp.burst.time(1),d0(i)+[0 days(dt)]*ms(i).m,'k--','linewidth',lw)
-    text(ax(ax0+4),ms(i).adcp.burst.time(1)+0.6*dt,PLIM(1)+0.*diff(PLIM),sprintf('%.1f [%.1f,%.1f] m/dy',round(ms(i).m,1),round(ms(i).m-ms(i).m_ci(1),1),round(ms(i).m+ms(i).m_ci(2),1)),...
+    text(ax(ax0+4),ms(i).adcp.burst.time(1)+0.6*dt,PLIM(1)+0.*diff(PLIM),sprintf('%.1f [%.1f,%.1f] m/day',round(ms(i).m,1),round(ms(i).m-ms(i).m_ci(1),1),round(ms(i).m+ms(i).m_ci(2),1)),...
         'verticalalignment','bottom','horizontalalignment','center','fontsize',fs-2,'color','w')
     linkaxes(ax(ax0:(ax0+4)),'x')
 
@@ -196,11 +196,11 @@ for i = [1 2 3]
 end
 ylabel(ax(4),'T_w [\circC]','fontsize',fs)
 yyaxis(ax(14),'right'); ylabel(ax(14),'S_w [psu]','fontsize',fs); yyaxis(ax(14),'left')
-ylabel(ax(5),'ADV distance [m]','fontsize',fs)
+ylabel(ax(5),{'ADV','distance [m]'},'fontsize',fs)
 
 % T legend
 lgd = legend(ax(14),h([3 2 1 4]),{'0.40 m','0.25 m','0.10 m','sal'},'location','southeast','fontsize',fs-2,'orientation','horizontal');
-lgd.Position(1:2) = [0.23 0.25];
+lgd.Position(1:2) = [0.24 ax(4).Position(2)];
 
 % velocity colorbar
 cbar = colorbar(ax(11),'position',cbarpos(ax(11:13),.01,.025));

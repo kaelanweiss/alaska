@@ -10,9 +10,7 @@ i = 28;
 ms = loadADVPCK(i);
 ms_tbl = loadMSInfo;
 
-tbl_path = 'G:Shared drives\Ice-ocean-interactions\science\Grad Students\Kaelan\meltstake_deployments.xlsx';
-seg_tbl = readtable(tbl_path,'sheet','manualwindows');
-seg_tbl = seg_tbl(seg_tbl.Number==i,:);
+seg_tbl = loadMSInfo(i,'segments');
 
 load('F:/adv/mean_profile.mat')
 
@@ -24,7 +22,7 @@ ms.pck_dist = ms.pck_dist(idxt,:);
 ms.pck_amp = ms.pck_amp(idxt,:,:);
 
 % mean profile
-% ms.pck_amp = ms.pck_amp./repmat(mean_prof',[size(ms.pck_amp,1) 1 3]);
+ms.pck_amp = ms.pck_amp./repmat(mean_prof',[size(ms.pck_amp,1) 1 3]);
 
 % try adding time-wise hanning filtering
 for i = 1:size(ms.pck_amp,2)

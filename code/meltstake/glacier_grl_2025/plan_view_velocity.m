@@ -10,11 +10,12 @@ gd_proc_dir = 'G:/Shared drives/Ice-ocean-interactions/fieldwork_docs_and_data/L
 polly_dep = {'20240712_162759','20240715_200834','20240716_211642'};
 aries_dep = {'20240712_164057','20240715_163629','20240716_191440'};
 term_dep = {{'07122024','01'},{'07152024','01'},{'07162024','01'}};
-ms_depth = [21 43 52];
+ms_depth = [21 44 52];
 
 R_e = 6.4e6; % [m] radius of earth
 %% load
 grid_vel(3) = struct('term',[],'ms_loc',[],'lat',[],'lon',[],'vel',[],'n',[],'depth',[]);
+clf
 for i = 1:3
 % i = 3;
 
@@ -121,7 +122,7 @@ for i = 1:3
     % plot(LON,LAT,'+','color',0.5*[1 1 1])
     
     % terminus line
-    h(1) = patch(term.lon,term.lat,0.2*[1 1 1],'facealpha',0.25,'edgecolor','k','linewidth',lw);
+    h(1) = patch(term.lon,term.lat,0.4*[1 1 1],'facealpha',0.25,'edgecolor','k','linewidth',lw);
     % plot(term.lon,term.lat,'k-','linewidth',lw)
     
     % RHIB tracks
@@ -138,8 +139,8 @@ for i = 1:3
     % ms location
     h(2) = plot(ms_loc(2),ms_loc(1),'ro','markersize',4,'markerfacecolor','r','linewidth',lw);
     
-    legend(h,{'glacier','ms location','sfc',sprintf('ms depth (%d m)',ms_depth(i))},'location','northeast','autoupdate','off')
-    % quiver(-132.359,56.835,-1*q_scale/cosd(56.8),0*q_scale,'off','k','linewidth',1);
+    legend(h(2:end),{'ms location','sfc',sprintf('ms depth (%d m)',ms_depth(i))},'location','north','autoupdate','off')
+    quiver(-132.359,56.835,-0.35*q_scale/cosd(56.8),0.35*q_scale,'off','k','linewidth',1);
     % quiver(-132.359,56.835,-0*q_scale/cosd(56.8),1*q_scale,'off','k','linewidth',1);
     
     xlim(-132-[0.367 0.358])

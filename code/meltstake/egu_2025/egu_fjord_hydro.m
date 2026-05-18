@@ -72,7 +72,7 @@ for i = 1:ndeps
     rho_mean_smth = hannFilter(ctd(i).rho_mean,round(3/dz)+1);
     drho_dz = gradient(rho_mean_smth)/dz;
     ctd(i).N2 = 9.81*drho_dz./rho_mean_smth/(2*pi)^2;
-    ctd(i).N = ctd(i).N2;
+    ctd(i).N = ctd(i).N2; % lol
     ctd(i).N(ctd(i).N<0) = nan;
     ctd(i).N = sqrt(ctd(i).N);
 

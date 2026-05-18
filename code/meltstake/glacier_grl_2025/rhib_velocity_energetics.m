@@ -8,7 +8,7 @@ clear
 
 load('G:\Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Polly\deployments_all\adcp_combo_QC.mat')
 load('G:\Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Polly\deployments_all\term_combo.mat')
-load('G:\Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Polly\deployments_all\old\ctd_combo.mat')
+load('G:\Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Polly\deployments_all\ctd_combo.mat')
 
 % just keep glacier data
 idx_glac = false(length(adcp),1);
@@ -96,34 +96,36 @@ for i = 1:ndeps
     vKE_profs(~idxi,i) = nan;
     
     % ctd data
-    [nz,np] = size(ctd(i).T);
+    [nz,np] = size(ctd(i).CT);
     % clean up ground-strikes in salinity
     iz_min = 0;
     for j = 1:np
-        iz_bottom = nz - find(~isnan(flip(ctd(i).S(:,j))),1) + 1;
-        [~,idx_filt] = sigmaFilter(ctd(i).S(iz_bottom-10:iz_bottom,j),1,1,2);
-        if any(idx_filt(end-1:end))
+        iz_bottom = nz - find(~isnan(flip(ctd(i).SA(:,j))),1) + 1;
+        [~,idx_filt] = sigmaFilter(ctd(i).SA(iz_bottom-10:iz_bottom,j),1,1,2);
+        if ~isempty(idx_filt) && any(idx_filt(end-1:end))
             % if any outliers detected, clear bottom meter
-            ctd(i).S(iz_bottom-3:iz_bottom,j) = ctd(i).S(iz_bottom-4,j);
-            ctd(i).PD(iz_bottom-3:iz_bottom,j) = ctd(i).PD(iz_bottom-4,j);
+            ctd(i).SA(iz_bottom-3:iz_bottom,j) = ctd(i).SA(iz_bottom-4,j);
+            ctd(i).P(iz_bottom-3:iz_bottom,j) = ctd(i).P(iz_bottom-4,j);
         end
         iz_min = max([iz_min iz_bottom]);
     end
     % calculate mean profiles
-    T_profs(1:iz_min,i,1) = min(ctd(i).T(1:iz_min,:),[],2,'omitnan');
-    T_profs(1:iz_min,i,2) = mean(ctd(i).T(1:iz_min,:),2,'omitnan');
-    T_profs(1:iz_min,i,3) = max(ctd(i).T(1:iz_min,:),[],2,'omitnan');
-    S_profs(1:iz_min,i,1) = min(ctd(i).S(1:iz_min,:),[],2,'omitnan');
-    S_profs(1:iz_min,i,2) = mean(ctd(i).S(1:iz_min,:),2,'omitnan');
-    S_profs(1:iz_min,i,3) = max(ctd(i).S(1:iz_min,:),[],2,'omitnan');
+    T_profs(1:iz_min,i,1) = min(ctd(i).CT(1:iz_min,:),[],2,'omitnan');
+    T_profs(1:iz_min,i,2) = mean(ctd(i).CT(1:iz_min,:),2,'omitnan');
+    T_profs(1:iz_min,i,3) = max(ctd(i).CT(1:iz_min,:),[],2,'omitnan');
+    S_profs(1:iz_min,i,1) = min(ctd(i).SA(1:iz_min,:),[],2,'omitnan');
+    S_profs(1:iz_min,i,2) = mean(ctd(i).SA(1:iz_min,:),2,'omitnan');
+    S_profs(1:iz_min,i,3) = max(ctd(i).SA(1:iz_min,:),[],2,'omitnan');
 end
 
 % mean across all deps
 vKE_mean = mean(vKE_profs,2,'omitnan');
 mom_mean = mean(mom_profs,2,'omitnan');
 mom_std = std(mom_profs,0,2,'omitnan');
-T_mean = squeeze(mean(T_profs,2,'omitnan'));
-S_mean = squeeze(mean(S_profs,2,'omitnan'));
+% T_mean = squeeze(mean(T_profs,2,'omitnan'));
+% S_mean = squeeze(mean(S_profs,2,'omitnan'));
+T_mean = squeeze(T_profs(:,end-1,:));
+S_mean = squeeze(S_profs(:,end-1,:));
 
 % plot
 fig2 = figure(200); clf
@@ -168,7 +170,7 @@ S_3eqn = interp1(ctd_depth,S_mean(:,2),adcp(1).cell_depth);
 
 %% save locally
 adcp_depth = adcp(1).cell_depth;
-save platform_comparison_data\polly_data.mat mom_mean mom_std T_mean S_mean adcp_depth ctd_depth max_dist m_3eqn
+% save platform_comparison_data\polly_data.mat mom_mean mom_std T_mean S_mean adcp_depth ctd_depth max_dist m_3eqn
 
 %% functions
 % % % % %

@@ -132,6 +132,10 @@ end
 D3 = zeros(nc) - diag(ones(nc-1,1),-1) + diag(ones(nc-1,1),1);
 D3([1 end],:) = 0;
 
+% backwards difference
+Drev = eye(nc) - diag(ones(nc-1,1),-1);
+Drev(1,1) = 0;
+
 % create smoothed amplitude matrix
 for i = 1:nt
     for j = 1:nb
@@ -182,9 +186,12 @@ for i = 1:nt
         end
         
         % find correct point
-        cent_diff = D3*ampij;
-        cent_diff(dist<range_lim(1) | dist>range_lim(2)) = 0;
-        [~,eidx] = max(cent_diff);
+        E_fld = D3*ampij;
+        % ALTERNATIVE: reverse diff * amplitude
+        % E_fld = Drev*ampij.*ampij;
+
+        E_fld(dist<range_lim(1) | dist>range_lim(2)) = 0;
+        [~,eidx] = max(E_fld);
         epos(i,j) = dist(eidx);
 
         % keep track of previous point(s)

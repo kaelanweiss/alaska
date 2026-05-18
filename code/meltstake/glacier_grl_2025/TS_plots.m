@@ -6,6 +6,8 @@
 % 24 Nov 2025
 clear
 
+addpath('..')
+
 raw_dir = 'F:/meltstake/data/raw';
 proc_dir = 'F:/meltstake/data/proc';
 
@@ -15,7 +17,7 @@ dep_tbl = loadMSInfo(26:28);
 seg_tbl = loadMSInfo(26:28,'segments');
 
 %% load hobo, T, polly ctd data
-clear hobo TS
+clear hobo solo TS
 S0 = [26.7 27.8 28];
 T0 = [6 6.9 7.1];
 ms_depth = [21 43 52]; % m
@@ -24,7 +26,10 @@ for i = 1:3
     % hobo
     hobo_load = load(fullfile(raw_dir,dep_tbl.Folder{i},'hobo','hobo.mat'));
     hobo(i) = hobo_load.hobo(2);
-
+    
+    % solo
+    solo_load = load(fullfile(raw_dir,dep_tbl.Folder{i},'rbr','T.mat'));
+    solo(i) = solo_load.T(1);
     % TS
     idxt = hobo(i).time >= dep_tbl.Start(i) & hobo(i).time <= dep_tbl.End(i);
     TS(i).t = hobo(i).time(idxt);

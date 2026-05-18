@@ -28,7 +28,7 @@ load egu_2025\clrs_egu.mat
 load F:/adv/mean_profile.mat
 
 % loop through deployment
-for i = 1:ndeps
+for i = 3%1:ndeps
     nsegs = sum(ms_tbl.Number==dep_nums(i));
     dep_name = ms_tbl.Folder{ms_tbl.Number==dep_nums(i) & ms_tbl.Window==1};
     seg_start = ms_tbl.Start(ms_tbl.Number==dep_nums(i));

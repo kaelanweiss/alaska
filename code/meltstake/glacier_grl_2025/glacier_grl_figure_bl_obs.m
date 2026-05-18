@@ -21,30 +21,6 @@ for i = 1:3
     ms_depth(i) = mean(seg_tbl.depth(seg_tbl.Number==dep_tbl.Number(i)));
 end
 
-%% load hobo, T, polly ctd data
-% clear hobo T ctd
-% for i = 1:3
-%     % hobo
-%     hobo_load = load(fullfile(raw_dir,dep_tbl.Folder{i},'hobo','hobo.mat'));
-%     hobo(i) = hobo_load.hobo(2);
-%     % solos
-%     T_load = load(fullfile(raw_dir,dep_tbl.Folder{i},'rbr','T.mat'));
-%     T(i) = struct('time',T_load.T(2).time,'T',T_load.T(2).values);
-%     % polly ctd
-%     ctd_load = load(fullfile(proc_dir,dep_tbl.Folder{i},'ctd.mat'));
-%     ctd(i) = ctd_load.ctd(strcmp({ctd_load.ctd.vessel},'polly'));
-% end
-% 
-% %% average outer TS conditions
-% dz = 2;
-% ms_depth = nan(3,1);
-% for i = 1:3
-%     ms_depth(i) = mean(seg_tbl.depth(seg_tbl.Number==dep_tbl.Number(i)));
-%     idxd = abs(ctd(i).depth-ms_depth(i)) <= dz;
-%     ctd(i).T_ms = max(ctd(i).T(idxd,:),[],'all','omitnan');
-%     ctd(i).S_ms = max(ctd(i).S(idxd,:),[],'all','omitnan');
-% end
-
 %% prep adcp data
 % where to sample for PSDs and velocities
 y_s = [0.15] + 1e-6*[-1 1]; % distance from wall 

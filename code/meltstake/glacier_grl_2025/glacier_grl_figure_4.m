@@ -64,10 +64,10 @@ plot(ax(3),S_mean(:,2),ctd_depth,'color',colors(3),'linewidth',lw)
 plot(ax(3),S_ms,round(d_ms),'k','markersize',msize,'marker',mstyle,'linestyle','none','linewidth',lw)
 
 % d) melt rate
-plot(ax(4),m_3eqn*86400,adcp_depth,'k-','linewidth',lw)
-plot(ax(4),2*m_3eqn*86400,adcp_depth,'k--','linewidth',lw)
+h4(1) = plot(ax(4),m_3eqn*86400,adcp_depth,'k-','linewidth',lw);
+h4(2) = plot(ax(4),1.6*m_3eqn*86400,adcp_depth,'k--','linewidth',lw);
 plot(ax(4),m_ms,round(d_ms),'k','markersize',msize,'marker',mstyle,'linestyle','none','linewidth',lw)
-
+%legend(ax(4),h4,{'3eqn','1.6*3eqn'},'fontsize',fs-2,'location','southeast')
 
 % limits
 linkaxes(ax,'y')
