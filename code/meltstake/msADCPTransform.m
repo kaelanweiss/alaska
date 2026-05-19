@@ -35,7 +35,7 @@ switch nargin
         amp_min = varargin{2};
 end
 
-% instrument-to-ice transformation matrix
+% instrument-to-ice transformation matrix (pre-attitude correction)
 INST2ICE = [ -1   0   0   0   0;... % inst x      ice x
               0  -1   0   0   0;... % inst y      ice z 
               0   0   0   0  -1;... % inst z1 --> ice y (b5)

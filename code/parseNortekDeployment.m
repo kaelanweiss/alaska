@@ -185,7 +185,7 @@ else
         adcp.burst.cellsize = cfg.([lower(burst_prefix) 'cellSize']);
         adcp.burst.blankingdist = cfg.([lower(burst_prefix) 'blankingDistance']);
         adcp.burst.coordinates = cfg.burst_coordSystem;
-        adcp.burst.beam2xyz = reshape(cfg.burst_beam2xyz,[4 4])';
+        adcp.burst.beam2xyz = cast(reshape(cfg.burst_beam2xyz,[4 4])','double');
         adcp.burst.velrange = cfg.burst_velocityRange;
         if adcp.cfg.bursthr_enable
             adcp.burst.hrlag = cfg.bursthr_lag;
