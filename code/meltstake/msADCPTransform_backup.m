@@ -1,4 +1,4 @@
-function adcp = msADCPTransform(adcp,varargin)
+function adcp = msADCPTransform_backup(adcp,varargin)
 % Function to perform ADCP transform for meltstake Sig1000. QC is
 % performed, and velocities are transformed into instrument and ice
 % coordinates. Instrument tilt is taken into account. Requires adcp
@@ -23,7 +23,8 @@ function adcp = msADCPTransform(adcp,varargin)
 % 18 Mar 2025 - coordinate system updated
 % 31 Jul 2025 - added "corrected" pitch and roll fields
 % 19 May 2026 - I realized I didn't fully update the transform operators
-% after updating the pitch and roll above
+% after updating the pitch and roll above, this is the backup version in
+% case I break things
 %
 % KJW
 % 30 Jan 2024
