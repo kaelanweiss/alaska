@@ -21,9 +21,11 @@ function adcp = msADCPTransform(adcp,varargin)
 %   
 % version control:
 % 18 Mar 2025 - coordinate system updated
-% 31 Jul 2025 - added "corrected" pitch and roll fields
+% 31 Jul 2025 - added "corrected" pitch and roll fields to match ms frame
 % 19 May 2026 - I realized I didn't fully update the transform operators
-% after updating the pitch and roll above
+% after updating the corrected pitch and roll
+% 20 May 2026 - fixed rotations, they now match the ADV transform and
+% should be right god willing
 %
 % KJW
 % 30 Jan 2024
@@ -99,14 +101,14 @@ for k = 1:nt
 
            %   (u   w  v5 v1-4  err)
     Rpitch = [  1   0   0   0   0;... % u
-                0  CR  SR   0   0;... % w'
-                0 -SR  CR   0   0;... % v5'
-                0 -SR   0  CR   0;... % v1-4'
+                0  CP -SP   0   0;... % w'
+                0  SP  CP   0   0;... % v5'
+                0  SP   0  CP   0;... % v1-4'
                 0   0   0   0   1];   % err
     
             %   (u   w  v5 v1-4  err)
-    Rroll = [  CP  SP   0   0   0;... % u'
-              -SP  CP   0   0   0;... % w'
+    Rroll = [  CR -SR   0   0   0;... % u'
+               SR  CR   0   0   0;... % w'
                 0   0   1   0   0;... % v5
                 0   0   0   1   0;... % v1-4
                 0   0   0   0   1];   % err

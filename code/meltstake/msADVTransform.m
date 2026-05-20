@@ -58,7 +58,7 @@ vel(qa_vel) = nan;
 % coordinate system on pg 39 of the comprehensive manual NOT PG 21!!)
 adv.vel_xyz = (adv.beam2xyz*vel')';
 
-% beam to ice (pre-attitude correction)
+% xyz to ice (pre-attitude correction)
 xyz2ice = [ 0  1  0;...
             0  0 -1;...
            -1  0  0];

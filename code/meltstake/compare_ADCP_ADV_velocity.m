@@ -25,12 +25,20 @@ load(fullfile(raw_dir,dep_name,'adcp','adcp.mat'))
 load(fullfile(raw_dir,dep_name,'adv','adv.mat'))
 load(fullfile(proc_dir,dep_name,'adv','svol_in_ocean.mat'))
 
+adcp.attitude.pitch_corrected = 0*adcp.attitude.pitch_corrected+45;
+adcp.attitude.roll_corrected = 0*adcp.attitude.roll_corrected+0;
+
 % time indexing
 idxt_adcp = adcp.burst.time>=t1 & adcp.burst.time<=t2;
 idxt_adv = adv.time>=t1 & adv.time<=t2;
 
 % transform ADV velocity
 adv = msADVTransform(adv,adcp.attitude);
+adv.vel_ice(~idx_ocean,:) = nan;
+
+% transform adcp velocity
+adcp.burst.vel_unw(:,:,5) = 0.1*adcp.burst.vel_unw(:,:,5);
+adcp = msADCPTransform(adcp,adcp.burst.processing.cor_min,adcp.burst.processing.amp_min);
 
 % fix ADCP coordinate system to be consistent with Weiss et al 2025 (+y
 % outward from ice)
@@ -39,7 +47,7 @@ adv = msADVTransform(adv,adcp.attitude);
 
 % ADV sample location (might need to fudge a little if ADCP is
 % contaminated)
-y_adv = 0.35; % m
+y_adv = 0.2; % m
 [~,r_idx] = min(abs(adcp.burst.range-y_adv));
 
 % extract ADCP velocity at ADV range
@@ -60,11 +68,11 @@ vel_adv_xyz(~idx_ocean,:) = nan;
 % plot to check for phase wrapping
 figure(1); clf
 plot(adv.time(idxt_adv),adv.vel(idxt_adv,:),'.-')
-adcpQuickPlot(figure(2),adcp,'vel',extrema(adcp.burst.vel),[t1 t2],[0 1],1)
+adcpQuickPlot(figure(2),adcp,'vel',max(abs(extrema(adcp.burst.vel))),[t1 t2],[0 1],1)
 
 % plot ADCP velocity for reference
 adcp.burst.vel_ice_uvw = adcp.burst.vel_ice(:,:,[1 3 2]);
-adcpQuickPlot(figure(3),adcp,'vel_ice_uvw',0.2,[t1 t2],[0 0.65],1)
+adcpQuickPlot(figure(3),adcp,'vel_ice_uvw',0.4,[t1 t2],[0 1],1)
 
 %% plot ADV and ADCP point velocity (ice coords)
 figure(4); clf
