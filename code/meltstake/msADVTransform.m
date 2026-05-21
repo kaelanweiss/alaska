@@ -26,6 +26,7 @@ function adv = msADVTransform(adv,varargin)
 %
 % version control:
 % 31 Jul 2025 - made script aware of "corrected" ADCP tilt
+% 21 May 2026 - fixed radian/degree bug associated with the change above
 %
 % KJW
 % 6 Mar 2024
@@ -69,8 +70,8 @@ ice_lbls = {'u (left)','v (away from ice)','w (up)'};
 if tilt_corrected
     % get pitch and roll, correct if necessary, interpolate
     if isfield(attitude,'pitch_corrected')
-        roll = interp1angle(attitude.time,attitude.roll_corrected,adv.time);
-        pitch = interp1angle(attitude.time,attitude.pitch_corrected,adv.time);
+        roll = interp1angle(attitude.time,attitude.roll_corrected*pi/180,adv.time);
+        pitch = interp1angle(attitude.time,attitude.pitch_corrected*pi/180,adv.time);
     else
         roll = -interp1angle(attitude.time,attitude.pitch*pi/180,adv.time); % when +y_inst points down, "pitch" is zero and increases with negative rotation about the +z_inst axis
         pitch = interp1angle(attitude.time,(attitude.roll-270)*pi/180,adv.time); % "roll" is positive rotation about +x_inst, at 270 when +y_inst points down
