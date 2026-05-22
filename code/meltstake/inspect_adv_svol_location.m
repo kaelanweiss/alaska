@@ -101,7 +101,7 @@ for i = 1:ndeps
         title(ax4(2),sprintf('%s | %d(%d)',strrep(dep_name,'_','\_'),dep_nums(i),j))
 
         % save figures
-        print(fig4,fullfile(fig_dir,sprintf('adv_smpvol_location_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r300')
+        print(fig4,fullfile(fig_dir,sprintf('adv_svol_location_%02d_%02d.png',dep_nums(i),j)),'-dpng','-r200')
     end
     a=1;
 end

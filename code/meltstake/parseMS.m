@@ -53,6 +53,9 @@ adcp = msADCPTransform(adcp,cor_min,0);
 adcpQuickPlot(figure(1),adcp,'vel',0.18*[-1 1],NaT,[0 1.2],8);
 adcpQuickPlot(figure(2),adcp,'vel_ice',0.30*[-1 1],NaT,[0 1.2],8);
 
+%% ADV transform
+adv = msADVTransform(adv,adcp.attitude);
+
 %% plots
 % T
 figure(3); clf

@@ -11,8 +11,8 @@ proc_dir = 'F:meltstake/data/proc';
 ms_tbl = loadMSInfo('segments');
 
 % choose deployment and segment(s)
-dep_num = 28;
-seg_num = [1 1];
+dep_num = 26;
+seg_num = [1 Inf];
 
 % find row number and time window
 row_num = find((ms_tbl.Number == dep_num) & (ms_tbl.Window >= seg_num(1) & ms_tbl.Window <= seg_num(2)));
@@ -25,14 +25,8 @@ load(fullfile(raw_dir,dep_name,'adcp','adcp.mat'))
 load(fullfile(raw_dir,dep_name,'adv','adv.mat'))
 load(fullfile(proc_dir,dep_name,'adv','svol_in_ocean.mat'))
 
-% TEST %
-pitch = 45;
-roll = -45;
-adcp.attitude.roll(:) = pitch+270;
-adcp.attitude.pitch(:) = -roll;
-
+%%
 % transform adcp velocity
-% adcp.burst.vel_unw(:,:,5) = 0.1*adcp.burst.vel_unw(:,:,5);
 adcp = msADCPTransform(adcp,adcp.burst.processing.cor_min,adcp.burst.processing.amp_min);
 
 % time indexing
@@ -43,15 +37,9 @@ idxt_adv = adv.time>=t1 & adv.time<=t2;
 adv = msADVTransform(adv,adcp.attitude);
 adv.vel_ice(~idx_ocean,:) = nan;
 
-
-% fix ADCP coordinate system to be consistent with Weiss et al 2025 (+y
-% outward from ice)
-% adcp.burst.vel_ice(:,:,1) = -adcp.burst.vel_ice(:,:,1); % u
-% adcp.burst.vel_ice(:,:,3) = -adcp.burst.vel_ice(:,:,3); % v
-
 % ADV sample location (might need to fudge a little if ADCP is
 % contaminated)
-y_adv = 0.2; % m
+y_adv = 0.3; % m
 [~,r_idx] = min(abs(adcp.burst.range-y_adv));
 
 % extract ADCP velocity at ADV range
@@ -62,6 +50,12 @@ vel_adcp_xyz = adcp.burst.vel_xyz(idxt_adcp,r_idx,[1 2 5]); % [v_x v_y v_z]
 for i = 1:3
     vel_adcp(:,i) = medianFilter(vel_adcp(:,i),3);
     vel_adcp_xyz(:,i) = medianFilter(vel_adcp_xyz(:,i),3);
+end
+
+% smooth out adv a little bit
+for i = 1:3
+    adv.vel_xyz(:,i) = hannFilter(adv.vel_xyz(:,i),10);
+    adv.vel_ice(:,i) = hannFilter(adv.vel_ice(:,i),10);
 end
 
 % ADV instrument vel corresponding to ADCP instrument coordinates

@@ -10,8 +10,8 @@
 % 8 Apr 2024
 
 % load data
-ms_tbl = loadMSInfo(1:19,'manualwindows');
-pc_tbl = loadMSInfo(1:19,'pitch_correction');
+ms_tbl = loadMSInfo(26:28,'segments');
+pc_tbl = loadMSInfo(26:28,'pitch_correction');
 
 [m,m_ci] = msTable2Vector(ms_tbl.m);
 [m1,m1_ci] = msTable2Vector(ms_tbl.m1);

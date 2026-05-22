@@ -6,7 +6,7 @@
 
 clear
 
-ms_tbl = loadMSInfo(26:28,'manualwindows');
+ms_tbl = loadMSInfo(26:28,'segments');
 pc_tbl = loadMSInfo(26:28,'pitch_correction');
 
 n = size(ms_tbl,1);
