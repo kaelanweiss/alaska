@@ -11,7 +11,7 @@ proc_dir = 'F:meltstake/data/proc';
 ms_tbl = loadMSInfo('segments');
 
 % choose deployment and segment(s)
-dep_num = 26;
+dep_num = 27;
 seg_num = [1 Inf];
 
 % find row number and time window
@@ -35,7 +35,7 @@ idxt_adv = adv.time>=t1 & adv.time<=t2;
 
 % transform ADV velocity
 adv = msADVTransform(adv,adcp.attitude);
-adv.vel_ice(~idx_ocean,:) = nan;
+% adv.vel_ice(~idx_ocean,:) = nan;
 
 % ADV sample location (might need to fudge a little if ADCP is
 % contaminated)
@@ -47,6 +47,8 @@ vel_adcp = adcp.burst.vel_ice(idxt_adcp,r_idx,[1 3 2]);
 vel_adcp_xyz = adcp.burst.vel_xyz(idxt_adcp,r_idx,[1 2 5]); % [v_x v_y v_z]
 
 % despike a little bit (bubbles...)
+vel_adcp = sigmaFilter(vel_adcp,2,1,1);
+vel_adcp_xyz = sigmaFilter(vel_adcp_xyz,2,1,1);
 for i = 1:3
     vel_adcp(:,i) = medianFilter(vel_adcp(:,i),3);
     vel_adcp_xyz(:,i) = medianFilter(vel_adcp_xyz(:,i),3);
@@ -60,7 +62,7 @@ end
 
 % ADV instrument vel corresponding to ADCP instrument coordinates
 vel_adv_xyz = [-adv.vel_xyz(:,2) adv.vel_xyz(:,1) adv.vel_xyz(:,3)];
-vel_adv_xyz(~idx_ocean,:) = nan;
+% vel_adv_xyz(~idx_ocean,:) = nan;
 
 %% plot
 % plot to check for phase wrapping

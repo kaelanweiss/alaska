@@ -10,7 +10,7 @@ proc_dir = 'F:/meltstake/data/proc';
 
 % load
 % dep_tbl = loadMSInfo([21:24 26:28]);
-dep_tbl = loadMSInfo(23);
+dep_tbl = loadMSInfo(26);
 
 ndeps = size(dep_tbl,1);
 sonar(ndeps) = struct('time',[],'angle',[],'range',[],'scan1',[],'scan2',[]);

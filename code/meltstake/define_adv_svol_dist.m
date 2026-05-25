@@ -61,7 +61,7 @@ end
 p_boundary = plot(edges.time,edges.boundary_location,'r-');
 
 %% loop through segments
-for i = 1:nsegs
+for i = [1 2]%1:nsegs
     fprintf('segment %d\n',i)
     % time range
     t1 = ms_tbl.Start(i);

@@ -17,8 +17,9 @@ bursts = unique(adv.burst_num);
 n_bursts = length(bursts);
 
 % preallocate
-vel_avg = nan(n_bursts,3);
-vel_std = nan(n_bursts,3);
+nc = size(adv.vel_ice,2);
+vel_avg = nan(n_bursts,nc);
+vel_std = nan(n_bursts,nc);
 n_avg = nan(n_bursts,1);
 time_avg = NaT(n_bursts,1);
 
