@@ -2,7 +2,7 @@
 % ADCP "outer" velocity.
 %
 % notes: probably want to process adv into segments at some point and then
-% update
+% update, also need to try to "unwind" velocity field
 %
 % KJW
 % 22 May 2026
