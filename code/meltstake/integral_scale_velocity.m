@@ -1,4 +1,4 @@
-% Script to calculate candidates for integral-sacle velocity based on ADCP
+% Script to calculate candidates for integral-scale velocity based on ADCP
 % bins furthest from the wall and low-passed at various timescales.
 %
 % KJW
@@ -7,6 +7,7 @@ clear
 
 proc_dir = 'F:/meltstake/data/proc';
 raw_dir = 'F:/meltstake/data/raw';
+fig_dir = 'F:/meltstake/figures';
 
 save_output = 1;
 
@@ -18,6 +19,7 @@ n_deps = length(dep_nums);
 
 % timescales
 tau = 30.*2.^(-5:2)';
+tau = [1 2 5 10 15 30 60 120]';
 
 % binning
 nf_u = [2 4 10 20]';
@@ -75,7 +77,7 @@ for i = 1:n_deps
     % low pass
     vel_lowpass = repmat(vel,[1 1 length(tau)]);
     for j = 1:length(tau)
-        nj = 2*adcp.burst.samplerate*tau(j);
+        nj = ceil(1*adcp.burst.samplerate*tau(j));
         for k = 1:size(vel,2)
             vel_lowpass(:,k,j) = hannFilter(vel_lowpass(:,k,j),nj);
         end
@@ -138,8 +140,11 @@ for i = 1:n_deps
         for k = 1:length(tau)
             plot(ax(j),fbin,Pbin(:,j,k),'-','color',line_colors(k,:))
         end
+        for k = 1:length(tau)
+            plot(ax(j),1/tau(k),1e-5,'k^','markerfacecolor',line_colors(k,:),'linewidth',lw)
+        end
         set(ax(j),'xscale','log','yscale','log')
-        ylim(ax(j),10.^[-8 1.5])
+        ylim(ax(j),10.^[-6 1.5])
         xlabel(ax(j),'f [Hz]','fontsize',fs)
     end
 
@@ -154,11 +159,12 @@ for i = 1:n_deps
 
     title(ax(5),sprintf('%s | range: [%.2f %.2f] m (%d cells)',strrep(dep_tbl.Folder{i},'_','\_'),r_lim(1),r_lim(2),sum(idxr)),'fontsize',fs+1)
     
-    % save
+    % save data
     vel_lowpass = cat(3,vel,vel_lowpass);
     time = adcp.burst.time;
     if save_output
         save(fullfile(proc_dir,dep_tbl.Folder{i},'velocity_lowpass.mat'),'time','tau','r_lim','vel_lowpass')
+        print(fig,fullfile(fig_dir,'lowpass_outer_velocity',[dep_tbl.Folder{i} '_lowpass_velocity.png']),'-dpng','-r300')
     end
 end
     
