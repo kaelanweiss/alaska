@@ -21,7 +21,7 @@ n_deps = length(dep_nums);
 tau = 30.*2.^(-5:2)';
 tau = [1 2 5 10 15 30 60 120]';
 
-% binning
+% psd binning
 nf_u = [2 4 10 20]';
 nf_u_stops = [0 80 401 1001]'/3600;
 
@@ -167,6 +167,3 @@ for i = 1:n_deps
         print(fig,fullfile(fig_dir,'lowpass_outer_velocity',[dep_tbl.Folder{i} '_lowpass_velocity.png']),'-dpng','-r300')
     end
 end
-    
-
-
