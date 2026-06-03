@@ -10,7 +10,7 @@ raw_dir = 'F:/meltstake/data/raw';
 proc_dir = 'F:/meltstake/data/proc';
 
 % one deployment at a time (will break otherwise)
-ms_tbl = loadMSInfo(26,'segments');
+ms_tbl = loadMSInfo(28,'segments');
 
 % load adv data
 dep_name = ms_tbl.Folder{1};

@@ -17,9 +17,6 @@ ms_tbl = loadMSInfo(dep_num,'segments');
 nsegs = size(ms_tbl,1);
 dep_name = ms_tbl.Folder{1};
 
-% set adcp distance for outer velocity calculation
-idxr = adcp.burst.range <= 0.2;
-
 % load data
 load(fullfile(proc_dir,dep_name,'adv','pck_edges.mat'))
 load(fullfile(proc_dir,dep_name,'adv','svol_in_ocean.mat'))
@@ -32,85 +29,101 @@ adcp = msADCPTransform(adcp,adcp.burst.processing.cor_min,adcp.burst.processing.
 adv = msADVTransform(adv,adcp.attitude);
 % add adv magnitude and bin by burst
 adv.vel_ice = [adv.vel_ice vecnorm(adv.vel_ice,2,2)];
-adv = burstAverageADV(adv);
-% length of burst
-b_dt = adv.samples_per_burst/adv.sample_rate;
+
+%% interpolate outer velocity onto adv time axis
+tau_idx = 6;
+tau = int_vel.tau(tau_idx); fprintf('Averaging timescale: %.1f s\n',tau)
+adv.vel_outer = interp1(int_vel.time,int_vel.vel_lowpass(:,1,tau_idx+1)+1i*int_vel.vel_lowpass(:,3,tau_idx+1),adv.time);
+adv.vel_angle = angle(adv.vel_outer);
+idx_slow = abs(adv.vel_outer)>.18;
+adv.vel_outer(idx_slow) = nan;
+% perform normalization
+adv.vel_ice(~idx_ocean,:) = nan;
+adv_uw = adv.vel_ice(:,1) + 1i*adv.vel_ice(:,3);
+adv_norm = adv_uw./adv.vel_outer;
+adv.vel_norm = [real(adv_norm) adv.vel_ice(:,2)./abs(adv.vel_outer) imag(adv_norm) adv.vel_ice(:,4)./abs(adv.vel_outer)];
+adv = burstAverageADV(adv,'vel_norm');
+
+% normalized stresses
+
+
+% figure to check that things are working
+figure(11); clf
+subplot(2,1,1); hold on
+plot(adv.time,real(adv_uw))
+plot(adv.time,real(adv.vel_outer))
+ylim(0.4*[-1 1])
+subplot(2,1,2); hold on
+plot(adv.time,imag(adv_uw))
+plot(adv.time,imag(adv.vel_outer))
+ylim(0.4*[-1 1])
 
 %% calculate velocity things
 % set up arrays
 y_adv = [];
 u_norm = [];
-w_norm = [];
-u_outer = [];
 
 y_max = 0;
 for i = 1:nsegs
     fprintf('segment %d\n',i)
-    % load adcp
-    load(fullfile(proc_dir,dep_name,sprintf('adcp%d.mat',i)))
     % create indexing vectors
     t1 = ms_tbl.Start(i);
     t2 = ms_tbl.End(i);
     idxb = adv.time_avg >= t1 & adv.time_avg <= t2; % adv bursts
     idxy = edges.time >= t1 & edges.time <= t2; % adv edges
+    idxt = adv.time >= t1 & adv.time <= t2; % adv full resolution
     % trim data to segment
     nb = sum(idxb);
     ti = adv.time_avg(idxb);
-    u_adv = adv.vel_avg(idxb,:);
+    u_normi = adv.vel_avg(idxb,:);
     y_advi = (edges.boundary_location(idxb)-157)/10;
-    % calculate outer velocity from adcp
-    u_outeri = nan(nb,4);
-    for j = 1:nb % loop through bursts
-        idxj = adcp.burst.time >= ti(j) & adcp.burst.time <= ti(j)+seconds(b_dt);
-        velj = squeeze(mean(adcp.burst.vel_ice(idxj,idxr,[1 3 2]),2,'omitnan'));
-        velj = [velj vecnorm(velj,2,2)];
-        u_outeri(j,:) = mean(velj,'omitnan');
-    end
-    
-    too_slow = [abs(u_outeri(:,1:3))<0.01 abs(u_outeri(:,4))<0.03];
-    
-    u_normi = u_adv./u_outeri;
-    u_normi(too_slow) = nan;
-
-    w_normi = u_adv(:,3)./abs(u_outeri(:,3));
-    w_normi(too_slow(:,3)) = nan;
 
     % output to arrays
     y_adv = [y_adv; y_advi];
     u_norm = [u_norm; u_normi];
-    w_norm = [w_norm; w_normi];
-    u_outer = [u_outer; u_outeri];
 end
 
 idx_ice = y_adv < -1;
 y_adv(idx_ice) = [];
 u_norm(idx_ice,:) = [];
-w_norm(idx_ice,:) = [];
-u_outer(idx_ice,:) = [];
+
+% sort
+[y_adv,sidx] = sort(y_adv);
+u_norm = u_norm(sidx,:);
+
+% get rid of nans in y_adv and then bin by y
+idx_nan = isnan(y_adv);
+y_adv(idx_nan) = [];
+u_norm(idx_nan,:) = [];
+[u_bin,y_bin] = time_bin(y_adv,u_norm',0.5,'omitnan');
+u_bin = u_bin';
 
 %% plot
-figure(1); clf
+fs = 12;
+figure(tau_idx+10); clf
 clear ax
-comp_lbls = {'u','v','w','|u|'};
+comp_lbls = {'along-flow','wall-normal','cross-flow','magnitude'};
 for j = 4:-1:1
-    ax(j) = subplot(4,1,j); hold on
-    ylabel(ax(j),sprintf('%s_{adv}/%s_{adcp}',comp_lbls{j},comp_lbls{j}))
-    xlabel(ax(j),'y [cm]')
+    ax(j) = subplot(4,1,j); hold on; box on
+    ylabel(ax(j),sprintf('%s',comp_lbls{j}),'fontsize',fs)
+    xlabel(ax(j),'y [cm]','fontsize',fs)
 end
-figure(2); clf
-ax_w = axes(figure(2)); hold on
-ylabel(ax_w,'w_{adv}/|w|_{adcp}')
-xlabel(ax_w,'y [cm]')
+
 for i = 1:nsegs
     for j = 1:4
-        plot(ax(j),y_adv,u_norm(:,j),'ko','markersize',3,'markerfacecolor','k')
-        % errorbar(ax(j),y_adv,u_norm(:,j,1),u_norm(:,j,2)/10,'ko','linewidth',0.8,'markersize',3,'markerfacecolor','k')
+        plot(ax(j),y_adv,u_norm(:,j),'kx','markersize',5,'markerfacecolor','k')
+        plot(ax(j),y_bin,u_bin(:,j),'ko','markersize',6,'markerfacecolor',colors(2))
     end
-    plot(ax_w,y_adv,w_norm,'ko','markersize',3,'markerfacecolor','k')
     y_max = max([y_max max(y_adv)]);
-
 end
-
+title(ax(1),sprintf('%s (T_{filter}=%.1f s)',strrep(dep_name,'_','\_'),tau),'fontsize',fs+1)
 linkaxes(ax,'x')
 xlim(ax(1),[-0.5 max(ceil(2*y_max))/2])
-xlim(ax_w,[-0.5 max(ceil(2*y_max))/2])
+
+switch dep_num
+    case 28
+        ylim(ax(1),[-0.1 1.5])
+        ylim(ax(2),[-0.3 0.3])
+        ylim(ax(3),[-0.7 0.7])
+        ylim(ax(4),[0 2])
+end
