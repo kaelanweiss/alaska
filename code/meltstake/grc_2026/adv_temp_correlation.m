@@ -20,6 +20,7 @@ load(fullfile(raw_dir,dep_name,'adv','adv.mat'))
 load(fullfile(raw_dir,dep_name,'adcp','adcp.mat'))
 load(fullfile(proc_dir,dep_name,'adv','svol_in_ocean.mat'))
 load(fullfile(proc_dir,dep_name,'velocity_lowpass.mat'))
+solo = T;
 
 % transform
 adv = msADVTransform(adv,adcp.attitude);
@@ -27,12 +28,14 @@ adv = msADVTransform(adv,adcp.attitude);
 % trim
 t1 = ms_tbl.Start(1);
 t2 = ms_tbl.End(end);
-idx_T = T(1).time>=t1 & T(1).time<=t2;
+idx_T1 = solo(1).time>=t1 & solo(1).time<=t2;
+idx_T3 = solo(3).time>=t1 & solo(3).time<=t2;
 idx_adv = adv.time >=t1 & adv.time <= t2;
 
-t_T = T(1).time(idx_T);
+t_T = solo(1).time(idx_T1);
 t_adv = adv.time(idx_adv);
-T = T(1).values(idx_T);
+T = [solo(1).values(idx_T1) solo(3).values(idx_T3)];
+dT = T(:,1)-T(:,2);
 vel = adv.vel_ice;
 vel(~idx_ocean,:) = nan;
 vel = vel(idx_adv,:);
@@ -45,3 +48,9 @@ for i = 1:3
 end
 vel_ds = interp1(t_adv,vel_ds,t_T);
 
+
+figure(1); clf
+for i = 1:3
+    subplot(1,3,i)
+    plot(T(:,1),vel_ds(:,i),'k.')
+end
