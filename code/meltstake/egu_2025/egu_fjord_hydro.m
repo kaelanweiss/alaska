@@ -10,7 +10,7 @@ addpath('..')
 proc_dir = 'F:/meltstake/data/proc';
 
 % ms deployment info
-ms_tbl = loadMSInfo(26:28,'manualwindows');
+ms_tbl = loadMSInfo(26:28,'segments');
 [dep_nums,uidx] = unique(ms_tbl.Number);
 dep_names = ms_tbl.Folder(uidx);
 ndeps = length(dep_nums);

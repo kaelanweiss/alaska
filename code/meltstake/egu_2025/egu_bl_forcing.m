@@ -10,7 +10,7 @@ addpath('..')
 raw_dir = 'F:/meltstake/data/raw';
 
 % ms deployment info
-ms_tbl = loadMSInfo(26:28,'manualwindows');
+ms_tbl = loadMSInfo(26:28,'segments');
 [dep_nums,uidx] = unique(ms_tbl.Number);
 dep_names = ms_tbl.Folder(uidx);
 ndeps = length(dep_nums);
@@ -104,13 +104,15 @@ for i = 1:ndeps
     [psd(i).Praw,psd(i).fraw] = psd_matlab(psd(i).uvw,psd(i).fs,'notaper');
     psd(i).dfraw = diff(psd(i).fraw([1 2]));
     % binned PSD
-    [Pbin,fbin,Mbin] = progressiveBin(psd(i).fraw(2:end),psd(i).Praw(2:end,:),nf_u,nf_u_stops);
+    [Pbin,fbin,Mbin] = progressiveBin(psd(i).fraw(2:end),psd(i).Praw(2:end,:)',nf_u,nf_u_stops);
     psd(i).P = Pbin;
     psd(i).df = diff(fbin([1 2]));
     psd(i).f = fbin;
     psd(i).M = Mbin;
     psd(i).s_ci = [Mbin./chi2inv(1-alpha/2,Mbin) Mbin./chi2inv(alpha/2,Mbin)];
-
+    
+    % fudge
+    psd(i).P(:,2) = psd(i).P(:,2)./sind(25);
 %     % plot
 %     figure(20+i); clf
 %     hold on
@@ -135,7 +137,7 @@ for i = 1:ndeps
     [T_psd(i).Praw,T_psd(i).fraw] = psd_matlab(T_in,T_psd(i).fs);
     T_psd(i).dfraw = diff(T_psd(i).fraw([1 2]));
     % binned PSD
-    [Pbin,fbin,Mbin] = progressiveBin(T_psd(i).fraw(2:end),T_psd(i).Praw(2:end,:),nf_T,nf_T_stops);
+    [Pbin,fbin,Mbin] = progressiveBin(T_psd(i).fraw(2:end),T_psd(i).Praw(2:end,:)',nf_T,nf_T_stops);
     T_psd(i).P = Pbin;
     T_psd(i).df = diff(fbin([1 2]));
     T_psd(i).f = fbin;
