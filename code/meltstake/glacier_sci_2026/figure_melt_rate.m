@@ -21,8 +21,8 @@ end
 % load model results
 mod_glac = load('../../../data/melt_models_glacier.mat');
 mod_berg = load('../../../data/melt_models.mat');
-mod_glac.m_mean = 1.6*mod_glac.m_mean(any(idx_glac(ms_tbl.Start>datetime(2024,7,1),:),2),:);
-mod_berg.m_mean = 1.6*mod_berg.m_mean(idx_berg(ms_tbl.Start<datetime(2024,7,1)),:);
+mod_glac.m_mean = mod_glac.m_mean(any(idx_glac(ms_tbl.Start>datetime(2024,7,1),:),2),:);
+mod_berg.m_mean = mod_berg.m_mean(idx_berg(ms_tbl.Start<datetime(2024,7,1)),:);
 
 % cm/hr to m/dy
 cmh2md = 0.24;
@@ -44,6 +44,17 @@ r = m(inc)./[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)];
 r_ci = m_ci_l(inc)./[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)];
 r_crs = m(inc)./[mod_berg.m_mean(:,5); mod_glac.m_mean(:,5)];
 r_crs_ci = m_ci_l(inc)./[mod_berg.m_mean(:,5); mod_glac.m_mean(:,5)];
+
+% tuning
+T_stanton = 0.0011;
+S_stanton = 0.000031;
+r_glac = m(inc & any(idx_glac,2))./mod_glac.m_mean(:,1);
+r_glac_ci = m_ci_l(inc & any(idx_glac,2))./mod_glac.m_mean(:,1);
+[coeff, coeff_ci] = bootstrapMean(r_glac,.05,10000,'x_var',r_glac_ci);
+fprintf('Tuning: %.2f [%.2f, %.2f]\n',round(coeff,2),round(coeff_ci(1),2),round(coeff_ci(2),2))
+fprintf('Gamma_T*Cd^1/2: %.5f [%.5f, %.5f]\n',round(coeff*T_stanton,5),round(coeff_ci(1)*T_stanton,5),round(coeff_ci(2)*T_stanton,5))
+fprintf('Gamma_S*Cd^1/2: %.7f [%.7f, %.7f]\n',round(coeff*S_stanton,7),round(coeff_ci(1)*S_stanton,7),round(coeff_ci(2)*S_stanton,7))
+
 
 % standard error
 tau_decorr = ms_tbl.tau_decorr;
@@ -103,14 +114,14 @@ text(ax(1),cbar.Position(1)-.25,cbar.Position(2)+.1,{'(T-T_f)','[K]'},'fontsize'
 % panel 2: m_3eqn
 plot(ax(2),[0 10],[0 10],'k-','linewidth',lw)
 plot(ax(2),[0 10],(1/1.6)*[0 10],'k--','linewidth',lw)
-errorbar(ax(2),[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)],m(inc),m_ci_l(inc),m_ci_h(inc),'linestyle','none','color',0.5*[1 1 1],'linewidth',lw)
-scatter(ax(2),mod_berg.m_mean(:,1),m(idx_berg),marker_scale/2,0.4*[1 1 1],berg_marker,'filled','markeredgecolor','k');
+errorbar(ax(2),coeff*[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)],m(inc),m_ci_l(inc),m_ci_h(inc),'linestyle','none','color',0.5*[1 1 1],'linewidth',lw)
+scatter(ax(2),coeff*mod_berg.m_mean(:,1),m(idx_berg),marker_scale/2,0.4*[1 1 1],berg_marker,'filled','markeredgecolor','k');
 for i = 1:size(idx_glac,2)
     ms = marker_scale;
     if strcmp(smbs{i},'square')
         ms = ms*1.3;
     end
-    scatter(ax(2),mod_glac.m_mean(idx_glac(find(any(idx_glac,2),1):end,i),1),m(idx_glac(:,i)),ms,dep_clrs(i,:),smbs{i},'filled','markeredgecolor','k');
+    scatter(ax(2),coeff*mod_glac.m_mean(idx_glac(find(any(idx_glac,2),1):end,i),1),m(idx_glac(:,i)),ms,dep_clrs(i,:),smbs{i},'filled','markeredgecolor','k');
 end
 % histogram
 % ax_in2 = axes(fig,'position',[ax(2).Position(1:2)+hist_loc 0 0]+[0 0 hist_size],'units','normalized','fontsize',fs-3,'xaxislocation','top');
@@ -128,14 +139,14 @@ end
 % panel 3: m_3eqn,coarse
 plot(ax(3),[0 10],[0 10],'k-','linewidth',lw)
 clear h3
-errorbar(ax(3),[mod_berg.m_mean(:,5); mod_glac.m_mean(:,5)],m(inc),m_ci_l(inc),m_ci_h(inc),'linestyle','none','color',0.5*[1 1 1],'linewidth',lw)
-h3(4) = scatter(ax(3),mod_berg.m_mean(:,5),m(idx_berg),marker_scale/2,0.4*[1 1 1],berg_marker,'filled','markeredgecolor','k');
+errorbar(ax(3),coeff*[mod_berg.m_mean(:,5); mod_glac.m_mean(:,5)],m(inc),m_ci_l(inc),m_ci_h(inc),'linestyle','none','color',0.5*[1 1 1],'linewidth',lw)
+h3(4) = scatter(ax(3),coeff*mod_berg.m_mean(:,5),m(idx_berg),marker_scale/2,0.4*[1 1 1],berg_marker,'filled','markeredgecolor','k');
 for i = 1:size(idx_glac,2)
     ms = marker_scale;
     if strcmp(smbs{i},'square')
         ms = ms*1.3;
     end
-    h3(i) = scatter(ax(3),mod_glac.m_mean(idx_glac(find(any(idx_glac,2),1):end,i),5),m(idx_glac(:,i)),ms,dep_clrs(i,:),smbs{i},'filled','markeredgecolor','k');
+    h3(i) = scatter(ax(3),coeff*mod_glac.m_mean(idx_glac(find(any(idx_glac,2),1):end,i),5),m(idx_glac(:,i)),ms,dep_clrs(i,:),smbs{i},'filled','markeredgecolor','k');
 end
 % histogram
 % ax_in3 = axes(fig,'position',[ax(3).Position(1:2)+hist_loc 0 0]+[0 0 hist_size],'units','normalized','fontsize',fs-3,'xaxislocation','top');

@@ -81,10 +81,10 @@ lw = 1;
 fs = 11;
 alpha = 0.5;
 
-pad = [0 0 .18 .12];
-shift = [0.01 0.05];
+pad = [0 0 .2 .12];
+shift = [0.027 0.07];
 
-fig_size = [8.5 8];
+fig_size = [7 6.5];
 fig = figure(10); clf
 setFigureSize(fig,fig_size);
 ax = axes(fig,'position',axgridpos(1,1,1,pad,shift));
@@ -134,13 +134,14 @@ set(ax,'ytick',0:0.2:1)
 yyaxis(ax,'left')
 
 ylabel(ax,'\Psi_{u} [m^2/s^2 cps^{-1}]','fontsize',fs)
-set(ax,'xtick',10.^(-6:1:2))
+set(ax,'xtick',10.^(-6:2:2))
 set(ax,'ytick',10.^(-6:2:2))
 xlabel(ax,'f [cps]','fontsize',fs)
 grid(ax,'off')
 xlim(ax,[10^-4 2.5])
 ylim(ax,10.^[-4.3 1.6])
 set(ax,'FontSize',fs)
+set(ax,'ticklength',[.02 .05])
 
 pnl_lbl = addPanelLabels(ax,fs);
 pnl_lbl.String = 'i) velocity spectra';

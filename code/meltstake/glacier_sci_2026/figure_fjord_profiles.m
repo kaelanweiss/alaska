@@ -19,21 +19,21 @@ ctd = ctd_all(3);
 
 %% plot
 fig = figure(1); clf
-setFigureSize(fig,[7.5 8]);
+setFigureSize(fig,[6.5 6]);
 clear ax
 
 lw = 2;
 fs = 11;
 alpha = 0.7;
 
-pad = [.05 .025 .1 .12];
-shift = [0.07 0.07];
+pad = [.03 .025 .11 .125];
+shift = [0.09 0.09];
 nf = 2;
 for i = 1:nf
     ax(i) = axes(fig,'position',axgridpos(1,nf,i,pad,shift),'fontsize',fs);
     box(ax(i),'on')
     hold(ax(i),'on')
-    plot(ax(i),[0 50],ctd.depth(ctd.zidx)*[1 1],'k--')
+    plot(ax(i),[0 50],ctd.depth(ctd.zidx)*[1 1],'-','color',0.6*[1 1 1],'linewidth',2)
 end
 
 % temperature

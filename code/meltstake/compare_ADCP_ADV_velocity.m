@@ -11,7 +11,7 @@ proc_dir = 'F:meltstake/data/proc';
 ms_tbl = loadMSInfo('segments');
 
 % choose deployment and segment(s)
-dep_num = 27;
+dep_num = 28;
 seg_num = [1 Inf];
 
 % find row number and time window
@@ -85,7 +85,7 @@ for i = 3:-1:1
     plot(adcp.burst.time(idxt_adcp),vel_adcp(:,i),'k-','linewidth',1)
     box on
     grid on
-    text(0.02,0.93,sprintf('%c',char(116+i)),'units','normalized','fontsize',12)
+    text(0.02,0.93,sprintf('%c',char(116+i)),'units','normalized','fontsize',12,'fontweight','bold')
     ylabel('vel [m/s]')
 end
 legend(ax1(1),{'ADV',sprintf('ADCP (y=%0.2f m)',round(y_adv,2))},'location','best','fontsize',10)

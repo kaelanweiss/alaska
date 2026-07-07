@@ -183,3 +183,128 @@ end
 ylim(ax(4),[5 7.5])
 ylim(ax(5),[25.5 28])
 ylim(ax(6),[0 4.5])
+
+%% skinnier plot 1
+fig = figure(2); clf
+setFigureSize(fig,[10.5 14]);
+clear ax
+
+lw = 1;
+fs = 11;
+
+pad = [.05 .025 .085 .06];
+shift = [.035 -0.01];
+nf = 6;
+for i = 1:nf
+    ax(i) = axes(fig,'position',axgridpos(nf,1,i,pad,shift),'fontsize',fs);
+    box(ax(i),'on')
+end
+
+% vel pcolors
+uw = uvw(:,:,[1 3]);
+for i = 1:2
+    pcolor(ax(i),adcp.burst.time,y,uw(:,:,i)')
+    shading(ax(i),'flat')
+    cmocean('bal',ax(i))
+    clim(ax(i),0.4*[-1 1])
+end
+
+% vel magnitude
+plot(ax(3),adcp.burst.time,hannFilter(umax,8*2),'-','color',0.2*[1 1 1],'linewidth',lw)
+set(ax(3),'fontsize',fs)
+
+% T
+hold(ax(4),'on')
+plot(ax(4),extrema(T(1).time),ctd.T_mean(ctd.zidx)*[1 1],'color',0.6*[1 1 1],'LineWidth',3*lw)
+% plotConfidenceRegion(ax(4),extrema(T(1).time),T_outer(1)*[1 1],T_outer(2)*[1 1],'k',0.3);
+for i = 1:3
+    plot(ax(4),T(i).time,T(i).values,'-','color',T_clrs(4-i,:),'linewidth',lw);
+end
+for i = 1:3
+    h4(i) = plot(ax(4),extrema(T(i).time),[0 0],'-','color',T_clrs(4-i,:),'linewidth',2*lw);
+end
+
+% S
+hold(ax(5),'on')
+plot(ax(5),extrema(T(1).time),ctd.S_mean(ctd.zidx)*[1 1],'color',0.6*[1 1 1],'LineWidth',3*lw)
+% plotConfidenceRegion(ax(5),extrema(hobo.time),S_outer(1)*[1 1],S_outer(2)*[1 1],0.0*colors(6),0.3);
+plot(ax(5),hobo.time,hobo.S,'-','color',0.7*colors(6),'linewidth',1.5*lw);
+
+% melt
+hold(ax(6),'on')
+for i = 1:nseg
+    if i == 1
+        h6(1) = plot([seg_tbl.Start(i) seg_tbl.End(i)],m(i)*[1 1],'-','linewidth',1*lw,'color',0.5*[1 1 1]);
+    else
+        plot([seg_tbl.Start(i) seg_tbl.End(i)],m(i)*[1 1],'-','linewidth',1*lw,'color',0.5*[1 1 1])
+    end
+end
+errorbar(ax(6),t_melt,m,m_ci_l,m_ci_h,'.','linewidth',1.5*lw,'color','k')
+h6(2) = plot(ax(6),t_melt,m,'ko','markersize',4,'linewidth',lw,'markerfacecolor','k');
+
+% % umax
+% yyaxis(ax(6),'right')
+% set(ax(6),'ycolor','k')
+% plot(ax(6),adcp.burst.time,hannFilter(umax,8*5),'r')
+% ylim(ax(6),[0 0.45])
+% yyaxis(ax(6),'left')
+
+% x tick
+for i = 1:length(ax)-1
+    set(ax(i),'xticklabel',{});
+end
+
+% ylabels
+for i = 1:2
+    ylabel(ax(i),'y [m]','fontsize',fs)
+    set(ax(i),'fontsize',fs,'ytick',0:0.2:0.6)
+end
+ylabel(ax(3),'speed [m/s]','fontsize',fs)
+ylabel(ax(4),'T [\circC]','fontsize',fs)
+ylabel(ax(5),'S [psu]','fontsize',fs)
+ylabel(ax(6),'m [m/day]','fontsize',fs)
+
+% panels
+p_lbls = addPanelLabels(ax,fs);
+for i = 1:length(p_lbls)
+    % p_lbls(i).BackgroundColor = 'w';
+    p_lbls(i).Position(1) = .005;
+    p_lbls(i).Position(2) = 1.02;
+    p_lbls(i).FontWeight = 'bold';
+end
+p_lbls(1).String = 'a) u';
+p_lbls(2).String = 'b) w';
+p_lbls(3).String = 'c) sqrt(u^2+w^2)';
+p_lbls(4).String = 'd) temperature';
+p_lbls(5).String = 'e) salinity';
+p_lbls(6).String = 'f) melt rate';
+
+% colobar
+ax1_pos = ax(1).Position;
+cbar = colorbar(ax(1),'location','northoutside');
+cbar.Position(3:4) = [0.4*ax(1).Position(3) .02];
+cbar.Position(1) = sum(ax1_pos([1 3])) - cbar.Position(3);
+cbar.Position(2) = sum(ax1_pos([2 4])) + .005;
+cbar.TickLength = .04;
+% cbar_txt = text(ax(1),sum(cbar.Position([1 3]))+.01,cbar.Position(2),'[m/s]','units','normalized');
+% cbar.Label.String = 'velocity [m/s]';
+% cbar.Label.FontSize = fs;
+% cbar.Label.FontWeight = 'bold';
+cbar.FontSize = fs-1;
+
+% legends
+lgd4 = legend(ax(4),h4,{'10cm','25cm','40cm'},'fontsize',fs-1,'orientation','horizontal','location','southeast');
+lgd4.Position(1:2) = [0.313 0.342];
+
+% axes limits
+linkaxes(ax,'x')
+xlim(ax(1),[seg_tbl.Start(1) seg_tbl.End(end)]+0.1*minutes([-1 1]))
+
+for i = 1:2
+    ylim(ax(i),[0 y(1)])
+    clim(ax(i),0.401*[-1 1])
+end
+
+ylim(ax(4),[5 7.5])
+ylim(ax(5),[25.5 28])
+ylim(ax(6),[0 4.5])
