@@ -49,11 +49,12 @@ if exist(fullfile(depname,rbr_dir,'instruments.txt'),'file')
     rbr = parseInstrumentFile(depname,rbr_dir);
     sn = [rbr.sn];
     pos = [rbr.pos];
-    
+    use_inst_file = true;
 else
     fprintf('no instrument.txt file found\n');
     rbr(nf) = struct();
     sn = [];
+    use_inst_file = false;
 end
 
 % Check that directory exists
@@ -98,19 +99,28 @@ for i = 1:nf
     ch_names = {rsk.channels(ch_idx).longName};
     ch_units = {rsk.channels(ch_idx).units};
     
+
     % find where to put the data using serial number
     sni = rsk.instruments.serialID;
-    sn_idx = find(sni==sn);    
-    if isempty(sn_idx) % if serial number not found in deployment, stick it at the end and fill in metadata
-        if i == 1
-            sn_idx = 1;
-        else
-            sn_idx = length(rbr)+1;
-        end
+    if ~use_inst_file % if no instrument file, just put in order
+        sn_idx = i;
         rbr(sn_idx).sn = sni;
         rbr(sn_idx).model = modeli;
         rbr(sn_idx).pos = NaN;
         rbr(sn_idx).t_offset = NaN;
+    elseif use_inst_file
+        sn_idx = find(sni==sn);    
+        if isempty(sn_idx) && use_inst_file % if serial number not found in deployment, stick it at the end and fill in metadata
+            if i == 1
+                sn_idx = 1;
+            else
+                sn_idx = length(rbr)+1; % this is broken, it puts empty structures between each data file 
+            end
+            rbr(sn_idx).sn = sni;
+            rbr(sn_idx).model = modeli;
+            rbr(sn_idx).pos = NaN;
+            rbr(sn_idx).t_offset = NaN;
+        end
     end
     
     % put data in output structure

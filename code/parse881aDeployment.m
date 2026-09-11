@@ -5,9 +5,9 @@ function sonar = parse881aDeployment(depname,varargin)
 % normal Meltstake directory structure, a data folder containing the above
 % files can be directly specified.
 %
-% sonar = parse881a(depname)
-% sonar = parse881a(depname,t1,t2)
-% sonar = parse881a(depname,__,'data_folder',data_folder)
+% sonar = parse881aDeployment(depname)
+% sonar = parse881aDeployment(depname,t1,t2)
+% sonar = parse881aDeployment(depname,__,'data_folder',data_folder)
 %
 % Input
 %   depname: path to the folder containing the subfolder (usually named
@@ -109,63 +109,112 @@ a_col = strcmp(dat_hdrs,'headposition');
 dir_col = strcmp(dat_hdrs,'stepdirection');
 nb = size(dat_tbl,2)-nh+1;
 na = 2*length(unique(dat_tbl{:,a_col}));
-scan_data = nan(ns,na,nb);
-angle_data = nan(ns,na);
+% scan_data = nan(ns,na,nb);
+% angle_data = nan(ns,na);
 
 % read data
 all_scans = dat_tbl{:,nh:end};
 all_angles = dat_tbl{:,a_col};
 all_dirs = dat_tbl{:,dir_col};
 
+% set up structure
+sonar(ns) = struct('time',NaT,'angle',[],'range',[],'scan1',[],'scan2',[]);
+
 % all_angles(all_angles<0) = all_angles(all_angles<0)+360;
+% loop through scans
 for i = 1:ns
+    fprintf('%03d/%d\n',i,ns)
     idx = row_scan==scan_num(i);
     scani = all_scans(idx,:);
     anglei = all_angles(idx);
-
-    % first angle
-    a0 = anglei(1);
-    fidx = find(anglei==a0);
-    % check that we're not in a partial last scan
-    if i==ns && length(fidx)<3
-        idx_final = i-1;
-        scan_data = scan_data(1:idx_final,:,:);
-        angle_data = angle_data(1:idx_final,:);
-        time = time(1:idx_final);
+    diri = all_dirs(idx);
+    % janky way to avoid incomplete last scan
+    if length(anglei) < na-2
+        sonar(end) = [];
         break
     end
-    f1 = fidx(1);f2 = fidx(2); f3 = fidx(3);
+    
+    dir_first = diri{1};
+    
+    % insert/preallocate data into structure
+    sonar(i).time = time(i);
+    sonar(i).angle = unique(anglei);
+    sonar(i).range = max_rng*linspace(0,1,nb)';
+    nai = length(sonar(i).angle);
+    sonar(i).scan1 = nan(nai,nb);
+    sonar(i).scan2 = nan(nai,nb);
 
-    % flip
-    if all(strcmp(all_dirs(idx),'cw'))
-        flip_idx = [f2-2:-1:f1 f2-1 f3-2:-1:f2 f3-1];
-        scani = scani(flip_idx,:);
-        anglei = anglei(flip_idx);
-    % no flip
-    else
-        scani = scani(f1:f3-1,:);
-        anglei = anglei(f1:f3-1);
+    % partition scan by direction
+    idx_cw = strcmp(diri,'cw');
+    idx_ccw = strcmp(diri,'ccw');
+
+    % cw
+    angle_cw = anglei(idx_cw);
+    scan_cw = scani(idx_cw,:);
+    [angle_cw,sort_cw] = sort(angle_cw);
+    scan_cw = scan_cw(sort_cw,:);
+    slice_cw = find(angle_cw(1)==sonar(i).angle):find(angle_cw(end)==sonar(i).angle);
+
+    % ccw
+    angle_ccw = anglei(idx_ccw);
+    scan_ccw = scani(idx_ccw,:);
+    [angle_ccw,sort_ccw] = sort(angle_ccw);
+    scan_ccw = scan_ccw(sort_ccw,:);
+    slice_ccw = find(angle_ccw(1)==sonar(i).angle):find(angle_ccw(end)==sonar(i).angle);
+
+    if strcmp(dir_first,'cw')
+        sonar(i).scan1(slice_ccw,:) = scan_ccw;
+        sonar(i).scan2(slice_cw,:) = scan_cw;
+
+    elseif strcmp(dir_first,'ccw')
+        sonar(i).scan2(slice_ccw,:) = scan_ccw;
+        sonar(i).scan1(slice_cw,:) = scan_cw;
     end
-    scan_data(i,:,:) = scani;
-    angle_data(i,:) = anglei;
 end
 
-% unified angle axes
-assert(all(all(angle_data==repmat(angle_data(1,:),[size(angle_data,1) 1]))),'angle axes do not align between scans')
-a0 = angle_data(1,1);
-fidx = find(angle_data(1,:)==a0);
-angle_axis = angle_data(1,fidx(1):fidx(2)-1);
-assert(all(angle_data(1,:)==[angle_axis angle_axis]),'angle axes do not align within scans')
-
-% collect data into structure
-sonar = struct('time',time,'angle',angle_axis','range',max_rng*linspace(0,1,nb)',...
-    'scan1',scan_data(:,fidx(1):fidx(2)-1,:),'scan2',scan_data(:,fidx(2):end,:));
-
-% do one more silly little indexing change to get the "seam" to point away
-% from the ice
-[~,i_jump] = max(abs(diff(angle_axis)));
-idx = [i_jump:length(angle_axis) 1:i_jump-1];
-sonar.angle = sonar.angle(idx);
-sonar.scan1 = sonar.scan1(:,idx,:);
-sonar.scan2 = sonar.scan2(:,idx,:);
+%     % first angle (this only works for 360 degree scans)
+%     a0 = anglei(1);
+%     fidx = find(anglei==a0);
+%     % check that we're not in a partial last scan
+%     if i==ns && length(fidx)<3
+%         idx_final = i-1;
+%         scan_data = scan_data(1:idx_final,:,:);
+%         angle_data = angle_data(1:idx_final,:);
+%         time = time(1:idx_final);
+%         break
+%     end
+%     f1 = fidx(1);f2 = fidx(2); f3 = fidx(3);
+% 
+%     % flip
+%     if all(strcmp(all_dirs(idx),'cw'))
+%         flip_idx = [f2-2:-1:f1 f2-1 f3-2:-1:f2 f3-1];
+%         scani = scani(flip_idx,:);
+%         anglei = anglei(flip_idx);
+%     % no flip
+%     else
+%         scani = scani(f1:f3-1,:);
+%         anglei = anglei(f1:f3-1);
+%     end
+%     scan_data(i,:,:) = scani;
+%     angle_data(i,:) = anglei;
+% end
+% 
+% % unified angle axes
+% assert(all(all(angle_data==repmat(angle_data(1,:),[size(angle_data,1) 1]))),'angle axes do not align between scans')
+% a0 = angle_data(1,1);
+% fidx = find(angle_data(1,:)==a0);
+% angle_axis = angle_data(1,fidx(1):fidx(2)-1);
+% assert(all(angle_data(1,:)==[angle_axis angle_axis]),'angle axes do not align within scans')
+% 
+% % collect data into structure
+% sonar = struct('time',time,'angle',angle_axis','range',max_rng*linspace(0,1,nb)',...
+%     'scan1',scan_data(:,fidx(1):fidx(2)-1,:),'scan2',scan_data(:,fidx(2):end,:));
+% 
+% % do one more silly little indexing change to get the "seam" to point away
+% % from the ice
+% [~,i_jump] = max(abs(diff(angle_axis)));
+% idx = [i_jump:length(angle_axis) 1:i_jump-1];
+% sonar.angle = sonar.angle(idx);
+% sonar.scan1 = sonar.scan1(:,idx,:);
+% sonar.scan2 = sonar.scan2(:,idx,:);
 

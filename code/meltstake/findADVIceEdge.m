@@ -55,14 +55,17 @@ if isnan(hann_width)
 end
 
 % turn scalars into vectors for each beam
-if length(x0)==1
+if isscalar(x0)
     x0 = x0*[1 1 1];
 end
-if length(L)==1
+if isscalar(L)
     L = L*[1 1 1];
 end
-if length(L0)==1
+if isscalar(L0)
     L0 = L0*[1 1 1];
+end
+if isscalar(hann_width)
+    hann_width = hann_width*[1 1 1];
 end
 
 % preallocate and redefine variables
@@ -139,7 +142,7 @@ Drev(1,1) = 0;
 % create smoothed amplitude matrix
 for i = 1:nt
     for j = 1:nb
-        amp(i,:,j) = hannFilter(squeeze(amp(i,:,j)),hann_width);
+        amp(i,:,j) = hannFilter(squeeze(amp(i,:,j)),hann_width(j));
     end
 end
 
@@ -158,6 +161,7 @@ max_jump = 5*dz;
 
 % find edges
 epos = nan(nt,nb);
+eidx = 0;
 for i = 1:nt
     for j = 1:nb
         % grab a single profile and fill nans
@@ -177,7 +181,7 @@ for i = 1:nt
             fprintf('MAX JUMP!!\n')
         end
 
-        if ~any(tdrill==time(i))
+        if ~any(tdrill==time(i)) && eidx ~= 1
             ampij = taper(x0(j),Lj,L0(j),dist,ampij);
 %         else
 %             drill_flag = 1;
@@ -186,7 +190,8 @@ for i = 1:nt
         end
         
         % find correct point
-        E_fld = D3*ampij;
+        % E_fld = D3*ampij; % (this is not robust to nans)
+        E_fld = centeredDifference(ampij);
         % ALTERNATIVE: reverse diff * amplitude
         % E_fld = Drev*ampij.*ampij;
 
@@ -209,7 +214,9 @@ for i = 1:nt
 %             title(sprintf('%s',time(i)))
 %         end
     end
-    a=1;
+    if i > 120
+        a=1;
+    end
 end
 edges.pos = epos;
 edges.desc = 'max CD (3pt) with hanning filter';
@@ -223,5 +230,8 @@ function prof = taper(x0,L,L0,dist,amp)
     w(w<0) = 0;
     w(w>1) = 1;
     prof = w.*amp;
+
+function d = centeredDifference(v)
+    d = [0; v(3:end)-v(1:end-2); 0];
 
 

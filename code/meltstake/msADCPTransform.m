@@ -74,6 +74,7 @@ B2I(1:size(adcp.burst.beam2xyz,1),1:size(adcp.burst.beam2xyz,1)) = adcp.burst.be
 % time series of pitch and roll (attitude and burst are on offset time axes)
 adcp.attitude.pitch_corrected = adcp.attitude.roll-270; % "roll" is positive rotation about +x_inst, at 270 when +y_inst points down
 adcp.attitude.roll_corrected = -adcp.attitude.pitch; % when +y_inst points down, "pitch" is zero and increases with negative rotation about the +z_inst axis
+adcp.attitude.pitch_corrected(adcp.attitude.pitch_corrected<-180) = adcp.attitude.pitch_corrected(adcp.attitude.pitch_corrected<-180)+360;
 roll = interp1angle(adcp.attitude.time,adcp.attitude.roll_corrected*pi/180,adcp.burst.time);
 pitch = interp1angle(adcp.attitude.time,adcp.attitude.pitch_corrected*pi/180,adcp.burst.time);
 
