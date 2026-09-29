@@ -5,7 +5,10 @@
 
 clear
 
-depname = '20260730_1530_ms01';
+% depname = '20260730_1530_ms01';
+% depname = '20260803_1430_ms01';
+depname = '20260816_1850_ms01';
+
 raw_dir = 'F:\GIANT2026\meltstake\data\raw';
 proc_dir = 'F:\GIANT2026\meltstake\data\proc';
 fig_dir = 'F:\GIANT2026\meltstake\figures';
@@ -43,31 +46,31 @@ box on
 ylabel('salinity [psu]','fontsize',fs)
 
 %% ROV CTD
-figure(3); clf
-for i = 1:2
-    ax3(i) = subplot(1,2,i);
-    hold on
-    axis ij
-    box on
-end
-ylabel(ax3(1),'depth [m]','fontsize',fs)
-xlabel(ax3(1),'temperature [^\circC]','fontsize',fs)
-xlabel(ax3(2),'salinity [psu]','fontsize',fs)
-
-% deploy cast
-t1 = datetime(2026,8,3,14,15,20);
-t2 = datetime(2026,8,3,14,36,53);
-idxt = ctd_rov.time > t1 & ctd_rov.time < t2;
-plot(ax3(1),ctd_rov.values(idxt,2),ctd_rov.values(idxt,4),'linewidth',lw)
-plot(ax3(2),ctd_rov.values(idxt,5),ctd_rov.values(idxt,4),'linewidth',lw)
-% outer cast
-t1 = datetime(2026,8,3,14,57,45);
-t2 = datetime(2026,8,3,15,4,19);
-idxt = ctd_rov.time > t1 & ctd_rov.time < t2;
-plot(ax3(1),ctd_rov.values(idxt,2),ctd_rov.values(idxt,4),'linewidth',lw)
-plot(ax3(2),ctd_rov.values(idxt,5),ctd_rov.values(idxt,4),'linewidth',lw)
-
-legend(ax3(1),{'deploy cast','outer cast'},'fontsize',fs-1,'location','southeast')
+% figure(3); clf
+% for i = 1:2
+%     ax3(i) = subplot(1,2,i);
+%     hold on
+%     axis ij
+%     box on
+% end
+% ylabel(ax3(1),'depth [m]','fontsize',fs)
+% xlabel(ax3(1),'temperature [^\circC]','fontsize',fs)
+% xlabel(ax3(2),'salinity [psu]','fontsize',fs)
+% 
+% % deploy cast
+% t1 = datetime(2026,8,3,14,15,20);
+% t2 = datetime(2026,8,3,14,36,53);
+% idxt = ctd_rov.time > t1 & ctd_rov.time < t2;
+% plot(ax3(1),ctd_rov.values(idxt,2),ctd_rov.values(idxt,4),'linewidth',lw)
+% plot(ax3(2),ctd_rov.values(idxt,5),ctd_rov.values(idxt,4),'linewidth',lw)
+% % outer cast
+% t1 = datetime(2026,8,3,14,57,45);
+% t2 = datetime(2026,8,3,15,4,19);
+% idxt = ctd_rov.time > t1 & ctd_rov.time < t2;
+% plot(ax3(1),ctd_rov.values(idxt,2),ctd_rov.values(idxt,4),'linewidth',lw)
+% plot(ax3(2),ctd_rov.values(idxt,5),ctd_rov.values(idxt,4),'linewidth',lw)
+% 
+% legend(ax3(1),{'deploy cast','outer cast'},'fontsize',fs-1,'location','southeast')
 
 %% adcp
 load(fullfile(raw_dir,depname,'adcp','adcp.mat'))

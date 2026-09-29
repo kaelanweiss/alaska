@@ -207,8 +207,8 @@ marker_scale = 30;
 berg_marker = 'diamond';
 
 hist_lvls = -1.5:0.15:2.3;
-hist_loc = [.172 .04];
-hist_size = [0.09 0.24];
+hist_loc = [.495 .025];
+hist_size = [0.25 0.13];
 
 pad = [.035 .08 .22 .05];
 shift = [-0.45*pad(3) .03];
@@ -240,13 +240,9 @@ for i = 1:size(idx_glac,2)
     h1(i) = scatter(ax(1),u(idx_glac(:,i)),m(idx_glac(:,i)),ms,T(idx_glac(:,i)),smbs{i},'filled','markeredgecolor','k');
 end
 cmocean('sol',ax(1))
-% ax(1).Position(3) = 0.92*ax(1).Position(3);
 cbar = colorbar(ax(1),'position',cbarpos(ax(1),.01,.03));
-% cbar.Position = [0.22 0.28 0.11 0.04];
-% cbar.Position = [ax(1).Position(1) sum(ax(1).Position([2 4]))+.01 ax(1).Position(3) .05];
-% cbar.Label.String = 'T [K]';
 clim(ax(1),[5 6.5])
-text(ax(1),cbar.Position(1)+.0,cbar.Position(2)+.5*cbar.Position(4),{'(T-T_f)','[K]'},'fontsize',fs-1,'horizontalalignment','center','verticalalignment','bottom','units','normalized')
+text(ax(1),1.25,0.5,{'(T-T_f)','[K]'},'fontsize',fs-1,'horizontalalignment','center','verticalalignment','middle','units','normalized','fontweight','normal')
 
 % panel 2: m_3eqn
 plot(ax(2),[0 10],[0 10],'k-','linewidth',lw)
@@ -261,17 +257,17 @@ for i = 1:size(idx_glac,2)
     scatter(ax(2),coeff*mod_glac.m_mean(idx_glac(find(any(idx_glac,2),1):end,i),1),m(idx_glac(:,i)),ms,dep_clrs(i,:),smbs{i},'filled','markeredgecolor','k');
 end
 % histogram
-% ax_in2 = axes(fig,'position',[ax(2).Position(1:2)+hist_loc 0 0]+[0 0 hist_size],'units','normalized','fontsize',fs-3,'xaxislocation','top');
-% hold(ax_in2,'on')
-% box(ax_in2,'on')
-% histogram(ax_in2,log10(r),hist_lvls,'facecolor',0.7*[1 1 1],'facealpha',1)
-% histogram(ax_in2,log10(r(any(idx_glac(inc,:),2))),hist_lvls,'facecolor',0.*[1 1 1],'facealpha',1)
-% % plot(ax_in2,log10(median(r,'omitnan'))*[1 1],[0 15],'k-','linewidth',1)
-% xlim(ax_in2,[-0.5 2.2])
-% ylim(ax_in2,[0 25])
-% set(ax_in2,'xtick',-2:2)
-% set(ax_in2,'xticklabelrotation',0)
-% grid(ax_in2,'on')
+ax_in2 = axes(fig2,'position',[ax(2).Position(1:2)+hist_loc 0 0]+[0 0 hist_size],'units','normalized','fontsize',fs-3,'yaxislocation','right');
+hold(ax_in2,'on')
+box(ax_in2,'on')
+histogram(ax_in2,log10(r/coeff),hist_lvls,'facecolor',0.7*[1 1 1],'facealpha',1)
+histogram(ax_in2,log10(r(any(idx_glac(inc,:),2))/coeff),hist_lvls,'facecolor',0.*[1 1 1],'facealpha',1)
+% plot(ax_in2,log10(median(r,'omitnan'))*[1 1],[0 15],'k-','linewidth',1)
+xlim(ax_in2,[-0.5 2.2])
+ylim(ax_in2,[0 25])
+set(ax_in2,'xtick',-2:2)
+set(ax_in2,'xticklabelrotation',0)
+grid(ax_in2,'on')
 
 % panel 3: m_3eqn,coarse
 plot(ax(3),[0 10],[0 10],'k-','linewidth',lw)
@@ -286,17 +282,17 @@ for i = 1:size(idx_glac,2)
     h3(i) = scatter(ax(3),coeff*mod_glac.m_mean(idx_glac(find(any(idx_glac,2),1):end,i),5),m(idx_glac(:,i)),ms,dep_clrs(i,:),smbs{i},'filled','markeredgecolor','k');
 end
 % histogram
-% ax_in3 = axes(fig,'position',[ax(3).Position(1:2)+hist_loc 0 0]+[0 0 hist_size],'units','normalized','fontsize',fs-3,'xaxislocation','top');
-% hold(ax_in3,'on')
-% box(ax_in3,'on')
-% histogram(ax_in3,log10(r_crs),hist_lvls,'facecolor',0.7*[1 1 1],'facealpha',1)
-% histogram(ax_in3,log10(r_crs(any(idx_glac(inc,:),2))),hist_lvls,'facecolor',0.*[1 1 1],'facealpha',1)
-% % plot(ax_in3,log10(median(r,'omitnan'))*[1 1],[0 15],'k-','linewidth',1)
-% xlim(ax_in3,[-0.5 2.2])
-% ylim(ax_in3,[0 25])
-% set(ax_in3,'xtick',-2:2)
-% set(ax_in3,'xticklabelrotation',0)
-% grid(ax_in3,'on')
+ax_in3 = axes(fig2,'position',[ax(3).Position(1:2)+hist_loc 0 0]+[0 0 hist_size],'units','normalized','fontsize',fs-3,'yaxislocation','right');
+hold(ax_in3,'on')
+box(ax_in3,'on')
+histogram(ax_in3,log10(r_crs/coeff),hist_lvls,'facecolor',0.7*[1 1 1],'facealpha',1)
+histogram(ax_in3,log10(r_crs(any(idx_glac(inc,:),2))/coeff),hist_lvls,'facecolor',0.*[1 1 1],'facealpha',1)
+% plot(ax_in3,log10(median(r,'omitnan'))*[1 1],[0 15],'k-','linewidth',1)
+xlim(ax_in3,[-0.5 2.2])
+ylim(ax_in3,[0 25])
+set(ax_in3,'xtick',-2:2)
+set(ax_in3,'xticklabelrotation',0)
+grid(ax_in3,'on')
 
 % axes limits
 linkaxes(ax(2:3),'x')
@@ -313,14 +309,14 @@ end
 xlabel(ax(1),'U [m s^{-1}]','fontsize',fs)
 xlabel(ax(2),'m_{3eqn} [m day^{-1}]','fontsize',fs)
 xlabel(ax(3),'m_{3eqn} [m day^{-1}]','fontsize',fs)
-% xlabel(ax_in2,'log_{10}(r_i)','fontsize',fs-3,'fontweight','normal')
-% ylabel(ax_in2,'count','fontsize',fs-3)
-% xlabel(ax_in3,'log_{10}(r_i)','fontsize',fs-3,'fontweight','normal')
-% ylabel(ax_in3,'count','fontsize',fs-3)
+xlabel(ax_in2,'log_{10}(m_{obs}/m_{3eqn})','fontsize',fs-2,'fontweight','normal')
+ylabel(ax_in2,'segments','fontsize',fs-2)
+xlabel(ax_in3,'log_{10}(m_{obs}/m_{3eqn})','fontsize',fs-2,'fontweight','normal')
+ylabel(ax_in3,'segments','fontsize',fs-2)
 
 % legend
-lgd = legend(ax(3),h3,cat(2,dep_lbls,{'iceberg'}),'orientation','horizontal','fontsize',fs-2);
-lgd.Position([1 2]) = [ax(2).Position(1) sum(ax(2).Position([2 4]))+.01];
+lgd = legend(ax(3),h3,cat(2,dep_lbls,{'iceberg'}),'orientation','vertical','fontsize',fs-2);
+lgd.Position([1 2]) = [sum(ax(2).Position([1 3]))+.01 sum(ax(2).Position([2 4]))-lgd.Position(4)/2];
 
 % panel lbls
 pnl_lbls = addPanelLabels(ax,fs-1);
@@ -329,6 +325,12 @@ pnl_lbls(2).String = 'b) full forcing';
 pnl_lbls(3).String = 'c) mean flow forcing';
 for i = 1:3
     pnl_lbls(i).FontWeight = 'bold';
+    pnl_lbls(i).Position(2) = 0.99;
+end
+
+% ticks
+for i = 2:3
+    set(ax(i),'xtick',0:4)
 end
 
 % line labels
@@ -336,5 +338,6 @@ for i = 2:3
     text(ax(i),0.9,0.85,'1:1','units','normalized','fontsize',fs-2,'rotation',45,'horizontalalignment','center','verticalalignment','middle')
 end
 % text(ax(2),0.63,0.9,'1.6:1','units','normalized','fontsize',fs-2,'rotation',atand(1.5),'horizontalalignment','center','verticalalignment','middle')
-text(ax(2),0.83,0.42,{'Jenkins et al.','(2010)'},'units','normalized','fontsize',fs-3,'rotation',atand(1/1.6),'horizontalalignment','center','verticalalignment','middle')
+% text(ax(2),0.83,0.61,{'Jenkins','et al. (2010)'},'units','normalized','fontsize',fs-3,'rotation',atand(1/1.6),'horizontalalignment','center','verticalalignment','middle')
+text(ax(2),0.65,0.3,{'Jenkins','et al. (2010)'},'units','normalized','fontsize',fs-3,'rotation',atand(1/1.6),'horizontalalignment','center','verticalalignment','middle')
 

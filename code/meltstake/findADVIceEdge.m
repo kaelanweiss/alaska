@@ -1,22 +1,29 @@
 function [edges,tdrill] = findADVIceEdge(adv,ndrill,x0,L,L0,hann_width,varargin)
 % Function to find ice location in ADV probe check echosounder profiles.
+% All inputs after "adv" can be NaN to use default values.
 %
 % [edges,tdrill] = findADVIceEdge(adv,ndrills,x0,L,L0,hann_width)
-% [edges,tdrill] = findADVIceEdge(adv,ndrills,x0,L,L0,hann_width,min_dist)
+% [edges,tdrill] = findADVIceEdge(adv,ndrills,x0,L,L0,hann_width,range_limit)
 %
 % Input
 %   adv: structure containing pck data (output from parseADVDeployment)
-%   x0: 
-%   L: width of taper window
-%   L0: width of constant-value portion of taper window
-%   ndrill: 
-%   hann_width: 
+%   x0: initial boundary location guess (scalar or 3-vector, NaN sets to
+%       default value 200)
+%   L: width of taper window (scalar or 3-vector, NaN sets to
+%       default value 300)
+%   L0: width of constant-value portion of taper window (scalar or 3-vector, NaN sets to
+%       default value 100)
+%   ndrill: number of drill events to attempt to find (NaN sets to default
+%       value 0)
+%   hann_width: width of Hanning filter applied along distance axis of
+%       backscatter profiles (scalar or 3-vector, NaN sets to
+%       default value 5)
 %   range_limit: (optional) if scalar, minimum distance to look for edge,
 %       if 2-element vector, second element is maximum distance
 %
 % Output
-%   edges: 
-%   tdrill: 
+%   edges: structure with ice edge positions
+%   tdrill: timestamps of when drilling likely occurred
 %
 % KJW
 % 5 December 2023
@@ -73,7 +80,6 @@ edges = struct;
 amp = adv.pck_amp;
 dist = adv.pck_dist;
 [nt,nc,nb] = size(amp);
-% amp(repmat(dist,[1 1 nb])<min_dist) = nan;
 
 %%% find drilling operations %%%
 tdrill = NaT(ndrill,1);
@@ -90,7 +96,7 @@ if ndrill
     tdrill = sort(tdrill);
 end
 
-%%% combine time-adjacent profiles %%%
+%%% combine profiles separated by 5 sec %%%
 dt = diff(adv.pck_time);
 % check if amp needs to be front-padded
 if dt(1)==seconds(5)
@@ -129,16 +135,6 @@ for i = 1:ndrill
 end
 
 %%% edge-finding %%%
-% centered-difference d/dz operator
-
-% derivative operator (3pt stencil, unscaled)
-D3 = zeros(nc) - diag(ones(nc-1,1),-1) + diag(ones(nc-1,1),1);
-D3([1 end],:) = 0;
-
-% backwards difference
-Drev = eye(nc) - diag(ones(nc-1,1),-1);
-Drev(1,1) = 0;
-
 % create smoothed amplitude matrix
 for i = 1:nt
     for j = 1:nb
@@ -146,78 +142,43 @@ for i = 1:nt
     end
 end
 
-% look-behind setup
-% m = 8; % number of previous points
-% k = 1; % steepness of weighting (0: flat, ~10: previous point)
-% 
-% x = -(m-1):0;
-% A = sum(exp(k*x))^-1;
-% wlb = A*exp(k*x);
-% x0 = repmat(x0,[m 1]);
-% drill_flag = 0;
+% max jump flag setup
 dz = min(abs(diff(dist)));
-x0_prev = x0;
 max_jump = 5*dz;
 
 % find edges
+x0_prev = x0;
 epos = nan(nt,nb);
 eidx = 0;
-for i = 1:nt
-    for j = 1:nb
-        % grab a single profile and fill nans
+for i = 1:nt % loop through time
+    for j = 1:nb % loop through beams
+        % grab a single profile
         ampij = amp(i,:,j)';
-%         ampij(isnan(ampij)) = ampij(find(~isnan(ampij),1));
-        
-%         if j == 2
-%             figure(99); clf; hold on
-%             plot(dist,ampij,'k.-') % debug
-%         end
 
-        % taper profile around expected position
-        % x0j = wlb*x0(:,j);
+        % taper profile around expected position, don't taper if meltstake
+        % just drilled
         Lj = L(j);
         if x0(j)-x0_prev(j) <= -max_jump
             Lj = 1e6;
             fprintf('MAX JUMP!!\n')
         end
-
         if ~any(tdrill==time(i)) && eidx ~= 1
             ampij = taper(x0(j),Lj,L0(j),dist,ampij);
-%         else
-%             drill_flag = 1;
-%             idxt = (1:ndrill)*(tdrill==time(i));
-%             fprintf('drill %d: %s == %s\n',idxt,tdrill(idxt),time(i))
         end
         
-        % find correct point
-        % E_fld = D3*ampij; % (this is not robust to nans)
+        % find correct point in profile
         E_fld = centeredDifference(ampij);
-        % ALTERNATIVE: reverse diff * amplitude
-        % E_fld = Drev*ampij.*ampij;
-
-        E_fld(dist<range_lim(1) | dist>range_lim(2)) = 0;
+        E_fld(dist<range_lim(1) | dist>range_lim(2)) = 0; % apply range limit
         [~,eidx] = max(E_fld);
         epos(i,j) = dist(eidx);
 
         % keep track of previous point(s)
         x0_prev(j) = x0(j);
         x0(j) = dist(eidx);
-%         x0(:,j) = [dist(eidx); x0(1:m-1,j)];
-%         if drill_flag
-%             x0(:,j) = x(1,j);
-%             drill_flag = 0;
-%         end
-
-%         if j == 2
-%             plot(dist,ampij,'r.-') % debug
-%             plot(x0(j)*[1 1],[0 max(ampij)],'b--') % debug
-%             title(sprintf('%s',time(i)))
-%         end
-    end
-    if i > 120
-        a=1;
     end
 end
+
+% put output in structure
 edges.pos = epos;
 edges.desc = 'max CD (3pt) with hanning filter';
 edges.hann_width = hann_width;

@@ -1,14 +1,18 @@
-function [m,Tb,Sb] = solve3Eqn(u,T,S,z)
+function [m,Tb,Sb] = solve3Eqn(u,T,S,z,varargin)
 % Function to solve the 3 equation melt parameterization of Jenkins et al.
 % (2010). The 3 equations form a nonlinear system due to the m*Sb term.
 %
 % [m,Tb,Sb] = solve3Eqn(u,Tw,Sw,z)
+% [m,Tb,Sb] = solve3Eqn(u,Tw,Sw,z,params)
 %
 % Input
 %   u: ocean velocity (m/s)
 %   T: ocean temperature (C)
 %   S: ocean salinity (psu)
 %   z: depth (m) (positive downward, z=0 at surface)
+%   params: (optional) vector or structure storing model parameters
+%       vector: [Cd, GammaT, GammaS]
+%       struct: params.fld with flds Cd, GammaT, and GammaS
 %
 % Output
 %   m: melt rate (m/s)
@@ -17,6 +21,27 @@ function [m,Tb,Sb] = solve3Eqn(u,T,S,z)
 %
 % KJW
 % 7 Feb 2024
+
+% default model parameters
+Cd = 0.0097;
+GammaT = 0.011;
+GammaS = 3.1e-4;
+defaultParams = [Cd, GammaT, GammaS];
+
+% parse inputs
+p = inputParser;
+validParams = @(x) (isvector(x) && length(x)==3) || isstruct(x);
+addOptional(p,'params',defaultParams,validParams);
+parse(p,varargin{:});
+if isstruct(p.Results.params)
+    Cd = p.Results.params.Cd;
+    GammaT = p.Results.params.GammaT;
+    GammaS = p.Results.params.GammaS;
+else
+    Cd = p.Results.params(1);
+    GammaT = p.Results.params(2);
+    GammaS = p.Results.params(3);
+end
 
 % physical parameters
 rho_i = 916; % ice density (kg/m3)
@@ -27,15 +52,10 @@ lambda1 = -0.0573; % liquidus slope (C/psu)
 lambda2 = 0.0832; % liquidus intercept (C)
 lambda3 = -7.53e-8; % liquidus pressure coefficient (C/Pa)
 
-% model parameters
-Cd = 0.0097;
-GammaT = 0.011;
-GammaS = 3.1e-4;
-
 % size of inputs
 sz = size(u);
 
-% turn depth into 
+% turn depth into a vector
 if numel(z)==1
     z = z*ones(sz);
 end

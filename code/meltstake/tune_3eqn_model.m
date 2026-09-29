@@ -55,7 +55,7 @@ alpha = .05;
 [coeff_r, coeff_r_ci] = bootstrapMean(r_glac,alpha,n_bs,'x_var',m_glac_ci.^2);
 
 % linear least squares of a y = mx model
-X = m_mod;
+X = [m_mod];
 Y = m_glac;
 W = diag(1./m_glac_ci.^2);
 coeff_lsq = (X'*W*X)\(X'*W*Y);
