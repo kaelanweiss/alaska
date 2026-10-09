@@ -10,8 +10,11 @@ load F:/meltstake/data/proc/glacier_2024_ctd.mat
 
 for i = 1:length(adcp)
     % mean flow contribution
-    vel_mean = squeeze(mean(mean(adcp(i).vel_ice,1,'omitnan'),2,'omitnan'));
-    KE_mean = sum(vel_mean([1 3]).^2);
+    vel_t_mean = squeeze(mean(adcp(i).vel_ice,1,'omitnan'));
+    vel_y_mean = squeeze(mean(adcp(i).vel_ice,2,'omitnan'));
+    vel_mean = mean(vel_y_mean);
+    KE_mean = 0.5*sum(vel_mean([1 3]).^2);
+    KE_total = 0.5*adcp(i).vel_ice(:,:,[1 3])
 
     % sort by N
     N = mean(ctd(i).N_ms);

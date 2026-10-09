@@ -13,38 +13,50 @@ proc_dir = 'F:/meltstake/data/proc';
 load ../glacier_grl_2025/glacier_clrs.mat
 
 % load ctd data
+dep_num = 3;
 load(fullfile(proc_dir,'glacier_2024_ctd.mat'));
 ctd_all = ctd;
-ctd = ctd_all(3);
+ctd = ctd_all(dep_num);
+idx_depth = ctd.depth_mean >= 1;
+
+% load segment T and S
+seg_tbl = loadMSInfo(dep_num+25,'segments');
+T = msTable2Vector(seg_tbl.T);
+S = msTable2Vector(seg_tbl.S);
+z_ms = mean(seg_tbl.depth);
 
 %% plot
 fig = figure(1); clf
-setFigureSize(fig,[6.5 6]);
+setFigureSize(fig,[6 5]);
 clear ax
 
-lw = 2;
-fs = 11;
-alpha = 0.7;
+lw = 1.8;
+fs = 10;
+alpha = 0.5;
+ms = 3;
+S_clr = 0.7*[35 142 35]/255; % 0.7*colors(6)
 
-pad = [.03 .025 .11 .125];
-shift = [0.09 0.09];
+pad = [.03 .025 .11 .15];
+shift = [0.095 0.082];
 nf = 2;
 for i = 1:nf
     ax(i) = axes(fig,'position',axgridpos(1,nf,i,pad,shift),'fontsize',fs);
     box(ax(i),'on')
     hold(ax(i),'on')
-    plot(ax(i),[0 50],ctd.depth(ctd.zidx)*[1 1],'-','color',0.6*[1 1 1],'linewidth',2)
+    % plot(ax(i),[0 50],ctd.depth(ctd.zidx)*[1 1],'-','color',0.6*[1 1 1],'linewidth',2)
 end
 
 % temperature
 c_num = 2;
-plotConfidenceRegion(ax(1),ctd.depth_mean,ctd.T_min,ctd.T_max,T_clrs(c_num,:),alpha,'x');
+plotConfidenceRegion(ax(1),ctd.depth_mean(idx_depth),ctd.T_min(idx_depth),ctd.T_max(idx_depth),T_clrs(c_num,:),alpha,'x');
 % plot(ax(1),ctd.T,ctd.depth,'color',T_clrs(c_num,:),'linewidth',lw/2)
-plot(ax(1),ctd.T_mean,ctd.depth_mean,'color',T_clrs(c_num,:),'linewidth',lw)
+plot(ax(1),ctd.T_mean(idx_depth),ctd.depth_mean(idx_depth),'color',T_clrs(c_num,:),'linewidth',lw);
+plot(ax(1),T,z_ms*ones(size(T)),'kdiamond','linewidth',0.5*lw,'markersize',ms);
 
 % salinity
-plotConfidenceRegion(ax(2),ctd.depth_mean,ctd.S_min,ctd.S_max,0.7*colors(6),alpha,'x');
-plot(ax(2),ctd.S_mean,ctd.depth_mean,'color',0.7*colors(6),'linewidth',lw)
+plotConfidenceRegion(ax(2),ctd.depth_mean(idx_depth),ctd.S_min(idx_depth),ctd.S_max(idx_depth),S_clr,alpha,'x');
+plot(ax(2),ctd.S_mean(idx_depth),ctd.depth_mean(idx_depth),'color',S_clr,'linewidth',lw)
+plot(ax(2),S,z_ms*ones(size(S)),'kdiamond','linewidth',0.5*lw,'markersize',ms)
 
 % flip
 for i = 1:nf
@@ -69,11 +81,12 @@ ylabel(ax(1),'depth [m]','fontsize',fs)
 
 % panel labels
 p_lbls = addPanelLabels(ax,fs);
-p_lbls(1).String = 'g) fjord T';
-p_lbls(2).String = 'h) fjord S';
+p_lbls(1).String = 'h) fjord T';
+p_lbls(2).String = 'i) fjord S';
 for i = 1:2
     p_lbls(i).FontWeight = 'bold';
+    p_lbls(i).Position(1:2) = [.005 1.1];
 end
 
 % text
-ms_txt = text(ax(1),min(xlim(ax(1)))+0.1,ctd.depth(ctd.zidx),{'MS','depth'},'fontsize',fs,'verticalalignment','top');
+% ms_txt = text(ax(1),min(xlim(ax(1)))+0.1,ctd.depth(ctd.zidx),{'MS','depth'},'fontsize',fs,'verticalalignment','top');

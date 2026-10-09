@@ -78,13 +78,13 @@ end
 % set up plot
 dep = 3;
 lw = 1;
-fs = 11;
-alpha = 0.5;
+fs = 10;
+alpha = 0.35;
 
-pad = [0 0 .2 .12];
+pad = [0 0 .2 .14];
 shift = [0.027 0.07];
 
-fig_size = [7 6.5];
+fig_size = [7 5.5];
 fig = figure(10); clf
 setFigureSize(fig,fig_size);
 ax = axes(fig,'position',axgridpos(1,1,1,pad,shift));
@@ -124,8 +124,9 @@ end
 % h_psd(1) = plot(ax,0,0,'-','color',vel_clrs(1,:),'linewidth',1.5*lw);
 % plot(ax,adcp(dep).fbin,P_dep,'-','color',vel_clrs(1,:),'linewidth',lw)
 % set(ax,'xscale','log','yscale','log')
-    
-lgd = legend(ax,h_psd([1 3 2]),{'u','w','cpdf'},'fontsize',fs-1);
+
+lgd = legend(ax,h_psd([1 3]),{'u','w'},'fontsize',fs-1);
+% lgd = legend(ax,h_psd([1 3 2]),{'u','w','cpdf'},'fontsize',fs-1);
 % lgd = legend(ax,h_psd,{'P(u)+P(w)','cpdf'},'fontsize',fs-1);
 lgd.Position(2) = 0.6;
 
@@ -144,5 +145,6 @@ set(ax,'FontSize',fs)
 set(ax,'ticklength',[.02 .05])
 
 pnl_lbl = addPanelLabels(ax,fs);
-pnl_lbl.String = 'i) velocity spectra';
+pnl_lbl.String = 'g) velocity spectra';
 pnl_lbl.FontWeight = 'bold';
+pnl_lbl.Position(1:2) = [.005 1.09];
