@@ -13,14 +13,14 @@ proc_dir = 'F:/meltstake/data/proc';
 load ../glacier_grl_2025/glacier_clrs.mat
 
 % load ctd data
-dep_num = 3;
+dep_num = 27;
 load(fullfile(proc_dir,'glacier_2024_ctd.mat'));
 ctd_all = ctd;
-ctd = ctd_all(dep_num);
+ctd = ctd_all(dep_num-25);
 idx_depth = ctd.depth_mean >= 1;
 
 % load segment T and S
-seg_tbl = loadMSInfo(dep_num+25,'segments');
+seg_tbl = loadMSInfo(dep_num,'segments');
 T = msTable2Vector(seg_tbl.T);
 S = msTable2Vector(seg_tbl.S);
 z_ms = mean(seg_tbl.depth);
@@ -65,12 +65,22 @@ for i = 1:nf
 end
 
 % axis limits
-xlim(ax(1),[4.5 7.8])
-xlim(ax(2),[22.5 32])
+switch dep_num
+    case 26
+        xlim(ax(1),[3.5 7.5])
+        xlim(ax(2),[23.8 29])
+    case 27
+        xlim(ax(1),[4 8])
+        xlim(ax(2),[23.3 31.2])
+    case 28
+        xlim(ax(1),[4.5 7.8])
+        xlim(ax(2),[22.5 32])
+end
 linkaxes(ax,'y')
 ylim(ax(1),[0 150])
 
 % ticks
+set(ax(1),'xtick',0:10)
 set(ax(2),'yticklabel',{})
 set(ax(2),'xtick',24:2:30)
 

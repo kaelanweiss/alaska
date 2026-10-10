@@ -76,7 +76,7 @@ end
 
 %% figure
 % set up plot
-dep = 3;
+dep = 2;
 lw = 1;
 fs = 10;
 alpha = 0.35;
