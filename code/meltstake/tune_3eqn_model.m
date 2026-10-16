@@ -21,7 +21,7 @@ for i = 1:3
 end
 
 % load model results
-mod_glac = load('../../data/melt_models_glacier.mat');
+mod_glac = load('../../data/melt_models_glacier_hann_1sec.mat');
 mod_berg = load('../../data/melt_models.mat');
 mod_glac.m_mean = mod_glac.m_mean(any(idx_glac(ms_tbl.Start>datetime(2024,7,1),:),2),:);
 mod_berg.m_mean = mod_berg.m_mean(idx_berg(ms_tbl.Start<datetime(2024,7,1)),:);
@@ -41,7 +41,7 @@ m_ci_h = m_ci_h*cmh2md;
 % glacier melt rates
 m_glac = m(inc & any(idx_glac,2));
 m_glac_ci = m_ci_l(inc & any(idx_glac,2));
-m_mod = mod_glac.m_mean(:,1);
+m_mod = mod_glac.m_mean(:,8);
 
 % method 1: melt ratio with bootstrap (this scales the uncertainty by m_mod
 % which is weird)
@@ -63,7 +63,7 @@ coeff_lsq_sigma2 = inv(X'*W*X);
 
 % print results
 fprintf('Mean of ratios: %.2f [%.2f, %.2f]\n',round(coeff_r,2),round(coeff_r_ci(1),2),round(coeff_r_ci(2),2))
-fprintf('Least squares: %.2f [%.2f, %.2f]\n',round(coeff_lsq,2),round(coeff_lsq-sqrt(coeff_lsq_sigma2),2),round(coeff_lsq+sqrt(coeff_lsq_sigma2),2))
+fprintf('Least squares: %.3e [%.3e, %.2e]\n',coeff_lsq,coeff_lsq-sqrt(coeff_lsq_sigma2),coeff_lsq+sqrt(coeff_lsq_sigma2))
 
 % 
 % % tuning

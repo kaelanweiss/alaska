@@ -10,6 +10,20 @@ load glacier_clrs.mat
 
 land = readgeotable("landareas.shp");
 
+% multibeam from Eidam et al 2020
+mb_file = '../../../../../code/map_plotting/data/LeConte_2018_seafloorbathymetry.nc';
+mb = struct();
+for fld = {'x','y','z'}
+    mb.(fld{1}) = ncread(mb_file,fld{1});
+end
+% trim
+mb.z(mb.z < -5000) = nan;
+x_idx = any(~isnan(mb.z'));
+y_idx = any(~isnan(mb.z));
+mb.x = mb.x(x_idx,y_idx);
+mb.y = mb.y(x_idx,y_idx);
+mb.z = mb.z(x_idx,y_idx);
+
 % terminus files
 term_files = {'G:Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Drone\LeconteTerminus\07122024\02\TermLatLon\LeconteTermVert07122024_2.csv',...
               'G:Shared drives\Ice-ocean-interactions\fieldwork_docs_and_data\LeConte2406\data\processed\Drone\LeconteTerminus\07152024\01\TermLatLon\LeconteTermVert07152024_1.csv',...
@@ -28,13 +42,14 @@ for i = 1:nt
 end
 
 % dep locations
-ms_loc = nan(nt,2);
-for i = 1:nt
-    C = strsplit(dep_tbl.Location{i},', ');
-    ms_loc(i,1) = str2double(C{1});
-    ms_loc(i,2) = str2double(C{2});
-end
-ms_loc(1,:) = ms_loc(1,:)+12*[cosd(ms_loc(1,1)) -1]*360/(6400000*2*pi);
+% ms_loc = nan(nt,2);
+% for i = 1:nt
+%     C = strsplit(dep_tbl.Location{i},', ');
+%     ms_loc(i,1) = str2double(C{1});
+%     ms_loc(i,2) = str2double(C{2});
+% end
+ms_loc = [dep_tbl.Latitude dep_tbl.Longitude];
+ms_loc(1,:) = ms_loc(1,:)+12*[cosd(ms_loc(1,1)) -1]*360/(6400000*2*pi); % jitter
 
 % plume locations
 

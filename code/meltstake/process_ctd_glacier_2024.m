@@ -10,7 +10,7 @@ addpath('..')
 proc_dir = 'F:/meltstake/data/proc';
 
 % save output
-save_output = 0;
+save_output = 1;
 
 % ms deployment info
 ms_tbl = loadMSInfo(26:28,'segments');
@@ -18,6 +18,8 @@ ms_tbl = loadMSInfo(26:28,'segments');
 dep_names = ms_tbl.Folder(uidx);
 ndeps = length(dep_nums);
 dep_depth = ms_tbl.depth(uidx);
+dep_tbl = loadMSInfo(dep_nums);
+dep_loc = [dep_tbl.Latitude dep_tbl.Longitude];
 
 % load ctd data
 lgd_lbls = cell(ndeps,1);
@@ -34,9 +36,27 @@ for i = 1:ndeps
     end
     t_start = ms_tbl.Start(uidx(i));
     t_start.Format = 'MMMdd yyyy';
-    lgd_lbls{i} = sprintf('dep %d (%s)',i,t_start); 
+    lgd_lbls{i} = sprintf('dep %d (%s)',i,t_start);
+
 end 
 ctd = cell2mat(ctd);
+
+% mask by distance to meltstake
+dist_limit = 400;
+for i = 1:3
+    ctd(i).dist_limit = dist_limit;
+    ctd(i).ms_dist = gcDist(ctd(i).lat,ctd(i).lon,dep_loc(i,1),dep_loc(i,2));
+    idx_dist = ctd(i).ms_dist < dist_limit;
+    ctd(i).time = ctd(i).time(idx_dist);
+    ctd(i).T = ctd(i).T(:,idx_dist);
+    ctd(i).S = ctd(i).S(:,idx_dist);
+    ctd(i).PD = ctd(i).PD(:,idx_dist);
+    ctd(i).C = ctd(i).C(:,idx_dist);
+    ctd(i).time_full = ctd(i).time_full(:,idx_dist);
+    ctd(i).lat = ctd(i).lat(idx_dist);
+    ctd(i).lon = ctd(i).lon(idx_dist);
+    ctd(i).ms_dist = ctd(i).ms_dist(idx_dist);
+end  
 
 %% data processing
 for i = 1:ndeps
@@ -74,7 +94,7 @@ for i = 1:ndeps
     dz = diff(ctd(i).depth(1:2));
     rho_mean_smth = hannFilter(ctd(i).rho_mean,round(3/dz)+1);
     drho_dz = gradient(rho_mean_smth)/dz;
-    ctd(i).N2 = 9.81*drho_dz./rho_mean_smth/(2*pi)^2;
+    ctd(i).N2 = 9.81*drho_dz./rho_mean_smth/(2*pi)^2; % cycles per sec
     ctd(i).N = ctd(i).N2; % lol
     ctd(i).N(ctd(i).N<0) = nan;
     ctd(i).N = sqrt(ctd(i).N);

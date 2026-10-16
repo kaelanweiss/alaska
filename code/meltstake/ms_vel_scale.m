@@ -12,7 +12,7 @@
 
 clear
 
-ms_tbl = loadMSInfo(26:28,'manualwindows');
+ms_tbl = loadMSInfo(26:28,'segments');
 
 dep_nums = unique(ms_tbl.Number,'stable');
 dep_names = unique(ms_tbl.Folder,'stable');
@@ -70,7 +70,7 @@ for i = 1:n_deps
         adcp.burst.vel(adcp.burst.cor<cor_min) = nan;
 %         adcp.burst.vel = unwrapVel(adcp.burst.vel,.2,[],32);
 
-        % smooth across 3 points in the profile
+        % smooth across 3 points in the beam vel profile
         for k = 1:size(adcp.burst.vel,1)
             for m = 1:size(adcp.burst.vel,3)
                 adcp.burst.vel(k,:,m) = hannFilter(squeeze(adcp.burst.vel(k,:,m)),3);
