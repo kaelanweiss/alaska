@@ -61,9 +61,11 @@ W = diag(1./m_glac_ci.^2);
 coeff_lsq = (X'*W*X)\(X'*W*Y);
 coeff_lsq_sigma2 = inv(X'*W*X);
 
+chi2 = 1/(length(Y)-1)*sum(((Y-coeff_lsq*X)./m_glac_ci).^2); % ~1, mean departure is on the order of the measurement uncertainty
+
 % print results
 fprintf('Mean of ratios: %.2f [%.2f, %.2f]\n',round(coeff_r,2),round(coeff_r_ci(1),2),round(coeff_r_ci(2),2))
-fprintf('Least squares: %.3e [%.3e, %.2e]\n',coeff_lsq,coeff_lsq-sqrt(coeff_lsq_sigma2),coeff_lsq+sqrt(coeff_lsq_sigma2))
+fprintf('Least squares: %.3e [%.3e, %.2e]\n',coeff_lsq,coeff_lsq-2*sqrt(coeff_lsq_sigma2),coeff_lsq+2*sqrt(coeff_lsq_sigma2))
 
 % 
 % % tuning

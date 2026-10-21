@@ -21,6 +21,7 @@ proc_path = 'F:/meltstake/data/proc';
 hann_int = 0.5; % s
 
 m_array = cell(100,1);
+Tb_array = nan(100,1);
 pos = 1;
 
 % Schulz threshold velocity
@@ -128,15 +129,21 @@ for i = 1:n_deps
         m7 = m7*86400; % m/s --> m/day
 
         % 3-equation with Cd = 1, GammaT = 1, GammaS = 1/35;
-        [m8,Tb,Sb] = solve3Eqn(U_scale,T_scale,S_scale,0,[1 1 1/35]);
+        [m8,Tb8,Sb8] = solve3Eqn(U_scale,T_scale,S_scale,0,[1 1 1/35]);
         m8 = m8*86400; % m/s --> m/day
         
+        % 3-equation with Cd = 1, GammaT = 1, GammaS = 1/70;
+        [m9,Tb9,Sb9] = solve3Eqn(U_scale,T_scale,S_scale,0,[1 1 1/70]);
+        m9 = m9*86400; % m/s --> m/day
+        
         % "save" output
-        m_array{pos} = [m1 m2 m3 m4 m5*ones(size(m1)) m6*ones(size(m1)) m7 m8];
+        m_array{pos} = [m1 m2 m3 m4 m5*ones(size(m1)) m6*ones(size(m1)) m7 m8 m9];
+        Tb_mean(pos) = mean(Tb8,'omitnan');
         pos = pos + 1;
     end
 end
 m_array(pos:end) = []; % trim unused space
+Tb_mean(pos:end) = [];
 
 % calculate mean melt for each
 m_mean = nan(length(m_array),size(m_array{1},2));

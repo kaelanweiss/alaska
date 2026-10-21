@@ -19,7 +19,7 @@ for i = 1:3
 end
 
 % load model results
-mod_glac = load('../../../data/melt_models_glacier.mat');
+mod_glac = load('../../../data/melt_models_glacier_hann_1sec.mat');
 mod_berg = load('../../../data/melt_models.mat');
 mod_glac.m_mean = mod_glac.m_mean(any(idx_glac(ms_tbl.Start>datetime(2024,7,1),:),2),:);
 mod_berg.m_mean = mod_berg.m_mean(idx_berg(ms_tbl.Start<datetime(2024,7,1)),:);
@@ -30,6 +30,7 @@ cmh2md = 0.24;
 % extract fields
 [m,~] = msTable2Vector(ms_tbl.m);
 [T,T_ci] = msTable2Vector(ms_tbl.T);
+Tb = ms_tbl.Tb;
 [S,S_ci] = msTable2Vector(ms_tbl.S);
 [u,u_ci] = msTable2Vector(ms_tbl.u_max);
 [m_ci_l,m_ci_h] = msTable2Vector(ms_tbl.m_ci);
@@ -54,7 +55,6 @@ r_glac_ci = m_ci_l(inc & any(idx_glac,2))./mod_glac.m_mean(:,1);
 fprintf('Tuning: %.2f [%.2f, %.2f]\n',round(coeff,2),round(coeff_ci(1),2),round(coeff_ci(2),2))
 fprintf('Gamma_T*Cd^1/2: %.5f [%.5f, %.5f]\n',round(coeff*T_stanton,5),round(coeff_ci(1)*T_stanton,5),round(coeff_ci(2)*T_stanton,5))
 fprintf('Gamma_S*Cd^1/2: %.7f [%.7f, %.7f]\n',round(coeff*S_stanton,7),round(coeff_ci(1)*S_stanton,7),round(coeff_ci(2)*S_stanton,7))
-
 
 % standard error
 tau_decorr = ms_tbl.tau_decorr;
@@ -101,12 +101,12 @@ for i = 1:size(idx_glac,2)
     if strcmp(smbs{i},'square')
         ms = ms*1.3;
     end
-    h1(i) = scatter(ax(1),u(idx_glac(:,i)),m(idx_glac(:,i)),ms,T(idx_glac(:,i)),smbs{i},'filled','markeredgecolor','k');
+    h1(i) = scatter(ax(1),u(idx_glac(:,i)),m(idx_glac(:,i)),ms,T(idx_glac(:,i))-Tb(idx_glac(:,i)),smbs{i},'filled','markeredgecolor','k');
 end
 cmocean('sol',ax(1))
 cbar = colorbar(ax(1),'position',cbarpos(ax(1),.01,.03),'fontsize',ax(1).FontSize);
-clim(ax(1),[5 6.5])
-text(ax(1),1.3,0.5,{'(T-T_f)','[K]'},'fontsize',fs-1,'horizontalalignment','center','verticalalignment','middle','units','normalized','fontweight','normal')
+clim(ax(1),[5.5 7])
+text(ax(1),1.3,0.5,{'T-T_b','[K]'},'fontsize',fs-1,'horizontalalignment','center','verticalalignment','middle','units','normalized','fontweight','normal')
 
 % panel 2: m_3eqn
 plot(ax(2),[0 10],[0 10],'k-','linewidth',lw)
@@ -164,7 +164,7 @@ xlim(ax(2),[0 4.5])
 xlim(ax(1),[0 0.32])
 
 linkaxes(ax,'y')
-ylim(ax(1),[0 4.5])
+ylim(ax(1),[0 4.6])
 
 % axes labels
 for i = 1:3
@@ -184,14 +184,14 @@ lgd.Position([1 2]) = [sum(ax(2).Position([1 3]))+.01 sum(ax(2).Position([2 4]))
 
 % panel lbls
 pnl_lbls = addPanelLabels([ax ax_in2 ax_in3],fs-1);
-pnl_lbls(1).String = 'a) U_{inst} and (T-T_f)';
+pnl_lbls(1).String = 'a) U_{inst} and T-T_b';
 pnl_lbls(2).String = 'b) full forcing';
 pnl_lbls(3).String = 'd) mean forcing';
 pnl_lbls(4).String = 'c)';
 pnl_lbls(5).String = 'e)';
 for i = 1:length(pnl_lbls)
     pnl_lbls(i).FontWeight = 'bold';
-    pnl_lbls(i).Position(2) = 0.99;
+    pnl_lbls(i).Position(2) = 0.975;
 end
 
 % ticks
@@ -201,7 +201,7 @@ end
 
 % line labels
 for i = 2:3
-    text(ax(i),0.9,0.85,'1:1','units','normalized','fontsize',fs-2,'rotation',45,'horizontalalignment','center','verticalalignment','middle')
+    text(ax(i),0.9,0.82,'1:1','units','normalized','fontsize',fs-2,'rotation',45,'horizontalalignment','center','verticalalignment','middle')
 end
 % text(ax(2),0.63,0.9,'1.6:1','units','normalized','fontsize',fs-2,'rotation',atand(1.5),'horizontalalignment','center','verticalalignment','middle')
 % text(ax(2),0.83,0.61,{'Jenkins','et al. (2010)'},'units','normalized','fontsize',fs-3,'rotation',atand(1/1.6),'horizontalalignment','center','verticalalignment','middle')

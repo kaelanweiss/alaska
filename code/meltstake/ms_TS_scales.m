@@ -11,7 +11,7 @@
 
 clear
 
-dep_nums = 28; % set to "nan" to load all
+dep_nums = 27; % set to "nan" to load all
 ms_tbl = loadMSInfo(dep_nums,'segments');
 
 dep_names = unique(ms_tbl.Folder,'stable');

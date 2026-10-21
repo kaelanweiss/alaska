@@ -54,13 +54,13 @@ edges.pos(idx_bad,2) = interp1(edges.time(~idx_bad),edges.pos(~idx_bad,2),edges.
 
 %% plot one beam
 fig2 = figure(2); clf
-setFigureSize(fig2,[9 5.5]);
+setFigureSize(fig2,[8 4]);
 
-lw = 2;
-fs = 11;
+lw = 1.5;
+fs = 9;
 
 pad = [.03 .05 .16 .13];
-shift = [-0.03 0.07];
+shift = [-0.03 0.08];
 clear ax
 ax2 = axes(fig2,'position',axgridpos(1,1,1,pad,shift));
 
@@ -73,18 +73,18 @@ shading(ax2,'flat')
 plot(ax2,t_min,(medianFilter(edges.pos(:,2),1)-4)/10,'w-','linewidth',lw)
 set(ax2,'fontsize',fs)
 
-ylim(ax2,[120 200]/10)
+ylim(ax2,[120 185]/10)
 
 cbar2 = colorbar(ax2,'position',cbarpos(ax2,.01,.02));
 cbar2.Label.String = 'normalized amplitude';
-cbar2.Label.FontSize = fs-1;
+cbar2.Label.FontSize = fs;
 
 
 % xlabel(ax2,'time since deployment [min]','fontsize',fs)
 ylabel(ax2,'ADV distance [cm]','fontsize',fs)
 
 clim(ax2,[1.05 1.25])
-cmocean('hal',ax2)
+cmocean('ice',ax2)
 
 % xlim(ax2,[20 60])
 xlim(ax2,datetime(2024,7,17,0,52,0)+minutes([20 60]))
