@@ -10,7 +10,7 @@ addpath('..')
 proc_dir = 'F:/meltstake/data/proc';
 
 % load colors
-load ../glacier_grl_2025/glacier_clrs.mat
+load glacier_clrs.mat
 
 % load ctd data
 dep_num = 27;

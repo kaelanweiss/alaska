@@ -21,6 +21,8 @@ function mstbl = loadMSInfo(varargin)
 % KJW
 % 30 Jan 2024
 
+% TBL_PATH = 'C:\Users\kjweiss\Desktop\meltstake_deployments.xlsx';
+% warning('Using local version of meltstake spreadsheet')
 TBL_PATH = 'G:\Shared drives\Ice-ocean-interactions\science\Grad Students\Kaelan\meltstake_deployments.xlsx';
 
 % parse varargin

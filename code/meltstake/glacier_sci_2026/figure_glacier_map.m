@@ -159,12 +159,6 @@ hold(ax_mb,'on')
 ax_mb.Color = 'none';
 linkaxes([ax_sat ax_mb])
 
-% ctd locations
-% for i = 1:nt
-%     [x_ctd,y_ctd] = ll2utm(ctd(i).lat,ctd(i).lon,'wgs84',8);
-%     scatter(ax_mb,x_ctd-p0(1),y_ctd-p0(2),6,dep_clrs(i,:),'filled','markeredgecolor','k')
-% end
-
 % terminus position
 for i = 1:nt
     plot(ax_mb,term(i).x-p0(1),term(i).y-p0(2),'-','color',dep_clrs(i,:),'linewidth',1.2*lw)
@@ -196,6 +190,7 @@ ylabel(ax_mb,'northing [m]','fontsize',fs)
 % cbar
 ax_mb_pos = ax_mb.Position;
 cbar = colorbar(ax_mb,'orientation','horizontal');
+cbar.AxisLocationMode = 'manual';
 cbar.AxisLocation = 'in';
 cbar.Position(1) = .19;
 cbar.Position(2) = sum(ax_mb_pos([2])) + 0.03;
@@ -205,41 +200,54 @@ cbar.Label.String = 'depth [m]';
 cbar.Label.FontSize = 8;
 cbar.Color = 0.85*[1 1 1];
 
+ctd_version = 1;
+if ctd_version
+    % ctd locations
+    for i = 1:nt
+        [x_ctd,y_ctd] = ll2utm(ctd(i).lat,ctd(i).lon,'wgs84',8);
+        scatter(ax_mb,x_ctd-p0(1),y_ctd-p0(2),6,dep_clrs(i,:),'filled','markeredgecolor','k')
+    end
+    cbar.Position(2) = sum(ax_mb.Position([2 4])) + .02;
+    cbar.AxisLocation = 'out';
+    cbar.Color = 0.15*[1 1 1];
+    clim(ax_mb,[-280 0])
+end
+
 % CTD text
 % scatter(ax_mb,440,1040,6,'w','filled','markeredgecolor','k')
 % text(ax_mb,440+30,1040,6,'CTD','fontsize',8,'fontweight','bold', ...
 %     'horizontalalignment','left','verticalalignment','middle')
 
 %%
-fs = 11;
-lw = 1.5;
-marker_scale = 40;
-
-fig = figure(4); clf
-setFigureSize(fig,8*[1 1]);
-
-lat0 = 58.30;
-lon0 = -134.42;
-
-p = projcrs(102037,'authority','esri');
-p.ProjectionParameters.LatitudeOfNaturalOrigin = lat0;
-p.ProjectionParameters.LongitudeOfNaturalOrigin = lon0;
-
-mx2 = mapaxes(fig,'projectedcrs',p);
-geoplot(mx2,land,'facecolor',0.5*[1 1 1])
+% fs = 11;
+% lw = 1.5;
+% marker_scale = 40;
+% 
+% fig = figure(4); clf
+% setFigureSize(fig,8*[1 1]);
+% 
+% lat0 = 58.30;
+% lon0 = -134.42;
+% 
+% p = projcrs(102037,'authority','esri');
+% p.ProjectionParameters.LatitudeOfNaturalOrigin = lat0;
+% p.ProjectionParameters.LongitudeOfNaturalOrigin = lon0;
+% 
+% mx2 = mapaxes(fig,'projectedcrs',p);
+% geoplot(mx2,land,'facecolor',0.5*[1 1 1])
 
 %%
-figure(5)
-axesm("ortho", ...
-    "Origin", [58.30 -134.42 0], ...
-    "Frame", "on", ...
-    "Grid", "on");
-
-axis off
-land = shaperead("landareas.shp", "UseGeoCoords", true);
-
-geoshow(land, ...
-    "FaceColor", [0.85 0.88 0.80], ...
-    "EdgeColor", [0.35 0.35 0.35]);
-
-plotm(58.30, -134.42, "r.", "MarkerSize", 20);
+% figure(5)
+% axesm("ortho", ...
+%     "Origin", [58.30 -134.42 0], ...
+%     "Frame", "on", ...
+%     "Grid", "on");
+% 
+% axis off
+% land = shaperead("landareas.shp", "UseGeoCoords", true);
+% 
+% geoshow(land, ...
+%     "FaceColor", [0.85 0.88 0.80], ...
+%     "EdgeColor", [0.35 0.35 0.35]);
+% 
+% plotm(58.30, -134.42, "r.", "MarkerSize", 20);

@@ -13,6 +13,7 @@
 clear
 
 ms_tbl = loadMSInfo(26:28,'segments');
+ns = size(ms_tbl,1);
 
 dep_nums = unique(ms_tbl.Number,'stable');
 dep_names = unique(ms_tbl.Folder,'stable');
@@ -31,10 +32,11 @@ t_exclude_dep = [2;...
                  8;...
                  8];
 
-u_max = nan(32,2);
-up2 = nan(32,1);
-v_rms = nan(32,1);
-u_coarse = nan(32,2);
+u_max = nan(ns,2);
+up2 = nan(ns,1);
+v_rms = nan(ns,1);
+u_coarse = nan(ns,2);
+u2_max = nan(ns,1);
 pos = 1;
 
 %%
@@ -143,9 +145,11 @@ for i = 1:n_deps
         
         % magnitude of u,w
         vel_mag = vecnorm(vel(:,:,1:2),2,3);
+        vel_mag2 = vel(:,:,1).^2 + vel(:,:,2).^2;
 
         % profile max
         vel_max = max(vel_mag,[],2);
+        vel2_max = max(vel_mag2,[],2);
         vel_max_smth = hannFilter(vel_max,4*5*60);
         vel_max_prime = vel_max - vel_max_smth;
         vel_rms = sqrt(mean(vel_max_prime.^2,'omitnan'));
@@ -163,11 +167,12 @@ for i = 1:n_deps
 %         plot(vel_rms+0*vel_max)
         
         u_max(pos,:) = [mean(vel_max,'omitnan') std(vel_max,'omitnan')];
+        u2_max(pos) = sqrt(mean(vel2_max,'omitnan'));
         up2(pos) = uprime2;
         v_rms(pos) = vel_rms;
         u_coarse(pos,:) = [U_outer U_ci];
 
-        fprintf('%d %.3f (%.3f) %.6f %.3f %.3f\n',pos,mean(vel_max,'omitnan'),std(vel_max,'omitnan'),uprime2,vel_rms,U_outer)
+        fprintf('%d | u_max: %.3f (%.3f) | sqrt(u_max^2): %.3f | u''^2: %.6f | u_rms: %.3f | u_coarse: %.3f\n',pos,u_max(pos,1),u_max(pos,2),u2_max(pos),uprime2,vel_rms,U_outer)
         
         pos = pos+1;
     

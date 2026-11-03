@@ -6,7 +6,7 @@
 
 clear
 
-save_output = 0;
+save_output = 1;
 
 ms_tbl = loadMSInfo(26:28,'segments');
 
@@ -28,7 +28,7 @@ pos = 1;
 u_thresh = 0.05;
 
 m_desc = {'3equation','KerrMcConnochie2015convective',sprintf('3eqnSchulz22(%.3fm/s)',u_thresh),'FitzMaurice2017bulk',...
-    '3eqn_coarse',sprintf('3eqnSchulz22_coarse(%.3fm/s)',u_thresh),'3eqn_noS','3eqn_Cd_GammaT_GammaS_1_1_1.35'};
+    '3eqn_coarse',sprintf('3eqnSchulz22_coarse(%.3fm/s)',u_thresh),'3eqn_noS','3eqn_Cd_GammaT_GammaS_1_1_1.35','3eqn_Cd_GammaT_GammaS_1_1_1.70','3equation_KW27coeffs','3eqn_coarse_KW27coeffs'};
 
 % loop through deployments
 for i = 1:n_deps
@@ -135,15 +135,26 @@ for i = 1:n_deps
         % 3-equation with Cd = 1, GammaT = 1, GammaS = 1/70;
         [m9,Tb9,Sb9] = solve3Eqn(U_scale,T_scale,S_scale,0,[1 1 1/70]);
         m9 = m9*86400; % m/s --> m/day
+
+        % 3-equation with parameters from Weiss et al 2027 (glacier paper)
+        [m10,Tb10,Sb10] = solve3Eqn(U_scale,T_scale,S_scale,0,[1 1.6e-3 4.6e-5]);
+        m10 = m10*86400; % m/s --> m/day
+
+        % 3-equation with parameters from Weiss et al 2027 (glacier paper)
+        [m11,Tb11,Sb11] = solve3Eqn(U_coarse,T_coarse,S_scale,0,[1 1.6e-3 4.6e-5]);
+        m11 = m11*86400; % m/s --> m/day
         
         % "save" output
-        m_array{pos} = [m1 m2 m3 m4 m5*ones(size(m1)) m6*ones(size(m1)) m7 m8 m9];
-        Tb_mean(pos) = mean(Tb8,'omitnan');
+        m_array{pos} = [m1 m2 m3 m4 m5*ones(size(m1)) m6*ones(size(m1)) m7 m8 m9 m10 m11];
+        Tb_mean(pos) = mean(Tb10,'omitnan');
+        Sb_mean(pos) = mean(Sb10,'omitnan');
         pos = pos + 1;
     end
 end
-m_array(pos:end) = []; % trim unused space
+% trim unused space
+m_array(pos:end) = [];
 Tb_mean(pos:end) = [];
+Sb_mean(pos:end) = [];
 
 % calculate mean melt for each
 m_mean = nan(length(m_array),size(m_array{1},2));
@@ -155,7 +166,7 @@ end
 
 %%
 if save_output
-    save('F:meltstake/data/proc/melt_models_glacier_hann_1sec.mat','m_array','m_mean','m_std','m_desc')
-    save('../../data/melt_models_glacier_hann_1sec.mat','m_array','m_mean','m_std','m_desc')
+    save('F:meltstake/data/proc/melt_models_glacier_hann_1sec.mat','m_array','m_mean','m_std','m_desc','Tb_mean','Sb_mean')
+    save('../../data/melt_models_glacier_hann_1sec.mat','m_array','m_mean','m_std','m_desc','Tb_mean','Sb_mean')
 end
 % melt_paper_figure_3

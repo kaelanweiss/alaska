@@ -43,29 +43,44 @@ m_glac = m(inc & any(idx_glac,2));
 m_glac_ci = m_ci_l(inc & any(idx_glac,2));
 m_mod = mod_glac.m_mean(:,8);
 
-% method 1: melt ratio with bootstrap (this scales the uncertainty by m_mod
-% which is weird)
-r = m(inc)./[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)];
-r_ci = m_ci_l(inc)./[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)];
-r_glac = m(inc & any(idx_glac,2))./mod_glac.m_mean(:,1);
-r_glac_ci = m_ci_l(inc & any(idx_glac,2))./mod_glac.m_mean(:,1);
-% [coeff, coeff_ci] = bootstrapMean(r_glac,.05,10000,'x_var',r_glac_ci);
-n_bs = 1e4;
-alpha = .05;
-[coeff_r, coeff_r_ci] = bootstrapMean(r_glac,alpha,n_bs,'x_var',m_glac_ci.^2);
+% % method 1: melt ratio with bootstrap (this scales the uncertainty by m_mod
+% % which is weird)
+% r = m(inc)./[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)];
+% r_ci = m_ci_l(inc)./[mod_berg.m_mean(:,1); mod_glac.m_mean(:,1)];
+% r_glac = m(inc & any(idx_glac,2))./mod_glac.m_mean(:,1);
+% r_glac_ci = m_ci_l(inc & any(idx_glac,2))./mod_glac.m_mean(:,1);
+% % [coeff, coeff_ci] = bootstrapMean(r_glac,.05,10000,'x_var',r_glac_ci);
+% n_bs = 1e4;
+% alpha = .05;
+% [coeff_r, coeff_r_ci] = bootstrapMean(r_glac,alpha,n_bs,'x_var',m_glac_ci.^2);
 
 % linear least squares of a y = mx model
 X = [m_mod];
 Y = m_glac;
-W = diag(1./m_glac_ci.^2);
+w = 1./m_glac_ci.^2;
+W = diag(w);
 coeff_lsq = (X'*W*X)\(X'*W*Y);
 coeff_lsq_sigma2 = inv(X'*W*X);
 
+% variance of error
 chi2 = 1/(length(Y)-1)*sum(((Y-coeff_lsq*X)./m_glac_ci).^2); % ~1, mean departure is on the order of the measurement uncertainty
+chi = sqrt(chi2);
+
+% this is the actual confidence on the estimate, multiply by 1.96
+std_error = sqrt(chi2*coeff_lsq_sigma2);
+
+% rmse
+m_rmse = rmse(coeff_lsq*X,Y);
+
+% proportional rmse
+prop_rmse = sqrt(1/sum(w)*sum(w.*((coeff_lsq*X-Y)./Y).^2)); % weighted
+% prop_rmse = sqrt((1/length(Y))*sum(((coeff_lsq*X-Y)./Y).^2));
+
 
 % print results
-fprintf('Mean of ratios: %.2f [%.2f, %.2f]\n',round(coeff_r,2),round(coeff_r_ci(1),2),round(coeff_r_ci(2),2))
-fprintf('Least squares: %.3e [%.3e, %.2e]\n',coeff_lsq,coeff_lsq-2*sqrt(coeff_lsq_sigma2),coeff_lsq+2*sqrt(coeff_lsq_sigma2))
+% fprintf('Mean of ratios: %.2f [%.2f, %.2f]\n',round(coeff_r,2),round(coeff_r_ci(1),2),round(coeff_r_ci(2),2))
+fprintf('Least squares GammaT*Cd^1/2: %.3e [%.3e, %.3e]\n',coeff_lsq,coeff_lsq-1.96*std_error,coeff_lsq+1.96*std_error)
+fprintf('Least squares GammaS*Cd^1/2: %.3e [%.3e, %.3e]\n',coeff_lsq/35,(coeff_lsq-1.96*std_error)/35,(coeff_lsq+1.96*std_error)/35)
 
 % 
 % % tuning
