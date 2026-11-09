@@ -12,7 +12,7 @@ ms_tbl = loadMSInfo('segments');
 
 % choose deployment and segment(s)
 dep_num = 28;
-seg_num = [1 Inf];
+seg_num = [3 Inf];
 
 % find row number and time window
 row_num = find((ms_tbl.Number == dep_num) & (ms_tbl.Window >= seg_num(1) & ms_tbl.Window <= seg_num(2)));

@@ -12,7 +12,7 @@ proc_dir = 'F:/meltstake/data/proc';
 load F:/adv/mean_profile.mat
 
 % save flag
-save_output = 1;
+save_output = 0;
 
 % deployment
 dep_num = 27;

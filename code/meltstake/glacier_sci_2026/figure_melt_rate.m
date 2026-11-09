@@ -97,7 +97,7 @@ clim(ax(1),[5.5 7])
 text(ax(1),1.3,0.5,{'T-T_b','[K]'},'fontsize',fs-1,'horizontalalignment','center','verticalalignment','middle','units','normalized','fontweight','normal')
 
 % panel 2: m_3eqn
-plotConfidenceRegion(ax(2),[0 10],[0 10]*(1-tune_unc),[0 10]*(1+tune_unc),'k',0.15)
+% plotConfidenceRegion(ax(2),[0 10],[0 10]*(1-tune_unc),[0 10]*(1+tune_unc),'k',0.15)
 plot(ax(2),[0 10],[0 10],'k-','linewidth',lw)
 plot(ax(2),[0 10],(1/coeff)*[0 10],'k--','linewidth',lw)
 errorbar(ax(2),[coeff*mod_berg.m_mean(:,1); mod_glac.m_mean(:,10)],m(inc),m_ci_l(inc),m_ci_h(inc),'linestyle','none','color',0.5*[1 1 1],'linewidth',lw)
@@ -123,7 +123,7 @@ set(ax_in2,'xticklabelrotation',0)
 grid(ax_in2,'on')
 
 % panel 3: m_3eqn,coarse
-plotConfidenceRegion(ax(3),[0 10],[0 10]*(1-tune_unc),[0 10]*(1+tune_unc),'k',0.15)
+% plotConfidenceRegion(ax(3),[0 10],[0 10]*(1-tune_unc),[0 10]*(1+tune_unc),'k',0.15)
 plot(ax(3),[0 10],[0 10],'k-','linewidth',lw)
 clear h3
 errorbar(ax(3),[coeff*mod_berg.m_mean(:,5); mod_glac.m_mean(:,11)],m(inc),m_ci_l(inc),m_ci_h(inc),'linestyle','none','color',0.5*[1 1 1],'linewidth',lw)
@@ -175,7 +175,7 @@ lgd.Position([1 2]) = [sum(ax(2).Position([1 3]))+.01 sum(ax(2).Position([2 4]))
 % panel lbls
 pnl_lbls = addPanelLabels([ax ax_in2 ax_in3],fs-1);
 pnl_lbls(1).String = 'a) U_{inst} and T-T_b';
-pnl_lbls(2).String = 'b) full forcing';
+pnl_lbls(2).String = 'b) inst forcing';
 pnl_lbls(3).String = 'd) mean forcing';
 pnl_lbls(4).String = 'c)';
 pnl_lbls(5).String = 'e)';
@@ -194,6 +194,10 @@ for i = 2:3
     text(ax(i),0.9,0.82,'1:1','units','normalized','fontsize',fs-2,'rotation',45,'horizontalalignment','center','verticalalignment','middle')
 end
 text(ax(2),0.75,0.35,{'Jenkins','et al. (2010)'},'units','normalized','fontsize',fs-2,'rotation',atand(1/coeff),'horizontalalignment','center','verticalalignment','middle')
+
+% rmspe labels
+title(ax_in2,'RMSPE: 0.27','fontsize',fs-1,'fontweight','normal')
+title(ax_in3,'RMSPE: 0.71','fontsize',fs-1,'fontweight','normal')
 
 
 % %% plot

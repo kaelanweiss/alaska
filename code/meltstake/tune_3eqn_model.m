@@ -63,7 +63,10 @@ coeff_lsq = (X'*W*X)\(X'*W*Y);
 coeff_lsq_sigma2 = inv(X'*W*X);
 
 % variance of error
+Neff = sum(w);
 chi2 = 1/(length(Y)-1)*sum(((Y-coeff_lsq*X)./m_glac_ci).^2); % ~1, mean departure is on the order of the measurement uncertainty
+chi2_wgtd = 1/Neff*sum(w.*((Y-coeff_lsq*X)./m_glac_ci).^2);
+
 chi = sqrt(chi2);
 
 % this is the actual confidence on the estimate, multiply by 1.96
@@ -72,9 +75,12 @@ std_error = sqrt(chi2*coeff_lsq_sigma2);
 % rmse
 m_rmse = rmse(coeff_lsq*X,Y);
 
-% proportional rmse
-prop_rmse = sqrt(1/sum(w)*sum(w.*((coeff_lsq*X-Y)./Y).^2)); % weighted
-% prop_rmse = sqrt((1/length(Y))*sum(((coeff_lsq*X-Y)./Y).^2));
+% rmspe
+rmspe = sqrt(1/sum(w)*sum(w.*((coeff_lsq*X-Y)./Y).^2)); % weighted
+X_full = mod_glac.m_mean(:,10);
+X_mean = mod_glac.m_mean(:,11);
+rmspe_full = sqrt(1/sum(w)*sum(w.*((X_full-Y)./Y).^2));
+rmspe_mean = sqrt(1/sum(w)*sum(w.*((X_mean-Y)./Y).^2));
 
 
 % print results
