@@ -24,7 +24,7 @@ for i = 4:-1:1
 end
 
 % panel labels
-x_lbls = {'T [\circC]','S [psu]','\rho [kg m^{-3}]','N/2\pi [cps]'};
+x_lbls = {'{\it T} (\circC)','{\it S} (psu)','\rho (kg m^{-3})','{\it N}/2\pi (cps)'};
 
 % plot
 % T
@@ -45,7 +45,7 @@ for i = 1:3
 end
 
 % axes
-ylabel(ax(1),'depth [m]','fontsize',fs)
+ylabel(ax(1),'depth (m)','fontsize',fs)
 for i = 1:length(ax)
     axis(ax(i),'ij')
     box(ax(i),'on')

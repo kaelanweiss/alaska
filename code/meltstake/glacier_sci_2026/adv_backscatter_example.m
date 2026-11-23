@@ -81,10 +81,10 @@ cbar2.Label.FontSize = fs;
 
 
 % xlabel(ax2,'time since deployment [min]','fontsize',fs)
-ylabel(ax2,'ADV distance [cm]','fontsize',fs)
+ylabel(ax2,'ADV distance (cm)','fontsize',fs)
 
 clim(ax2,[1.05 1.25])
 cmocean('ice',ax2)
 
 % xlim(ax2,[20 60])
-xlim(ax2,datetime(2024,7,17,0,52,0)+minutes([20 60]))
+xlim(ax2,datetime(2024,7,17,0,52,0)+minutes([21 60]))

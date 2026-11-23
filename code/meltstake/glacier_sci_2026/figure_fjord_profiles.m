@@ -13,7 +13,7 @@ proc_dir = 'F:/meltstake/data/proc';
 load glacier_clrs.mat
 
 % load ctd data
-dep_num = 27;
+dep_num = 28;
 load(fullfile(proc_dir,'glacier_2024_ctd.mat'));
 ctd_all = ctd;
 ctd = ctd_all(dep_num-25);
@@ -85,16 +85,15 @@ set(ax(2),'yticklabel',{})
 set(ax(2),'xtick',24:2:30)
 
 % axis labels
-xlabel(ax(1),'T [\circC]','fontsize',fs)
-xlabel(ax(2),'S [psu]','fontsize',fs)
-ylabel(ax(1),'depth [m]','fontsize',fs)
+xlabel(ax(1),'{\itT} (\circC)','fontsize',fs)
+xlabel(ax(2),'{\itS} (psu)','fontsize',fs)
+ylabel(ax(1),'depth (m)','fontsize',fs)
 
 % panel labels
 p_lbls = addPanelLabels(ax,fs);
-p_lbls(1).String = 'h) fjord T';
-p_lbls(2).String = 'i) fjord S';
+p_lbls(1).String = '{\bfH} fjord {\itT}';
+p_lbls(2).String = '{\bfI} fjord {\itS}';
 for i = 1:2
-    p_lbls(i).FontWeight = 'bold';
     p_lbls(i).Position(1:2) = [.005 1.1];
 end
 

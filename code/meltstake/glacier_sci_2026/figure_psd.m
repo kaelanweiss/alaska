@@ -76,13 +76,13 @@ end
 
 %% figure
 % set up plot
-dep = 2;
+dep = 3;
 lw = 1;
 fs = 10;
-alpha = 0.35;
+alpha = 0.3;
 
 pad = [0 0 .2 .14];
-shift = [0.027 0.07];
+shift = [0.01 0.07];
 
 fig_size = [7 5.5];
 fig = figure(10); clf
@@ -97,7 +97,7 @@ clear h_psd
 % vertical frequencies
 plot(mean(ctd(dep).N_ms)*[1 1],10.^[-6 4],'-','linewidth',1*lw,'color',0.5*[1 1 1])
 % plot(adcp(dep).f_80*[1 1],10.^[-6 4],':','linewidth',0.9*lw,'color',0.3*[1 1 1])
-Ntxt = text(mean(ctd(dep).N_ms),3e-4,'N/(2\pi)','fontsize',fs);
+Ntxt = text(mean(ctd(dep).N_ms),3e-4,'{\itN}','fontsize',fs);
 
 % shaded regions
 for j = [3 1]
@@ -111,7 +111,7 @@ yyaxis(ax,'right')
 h_psd(2) = plot(ax,adcp(dep).fbin,adcp(dep).CPDF/adcp(dep).CPDF(end),'-','color',0.*[1 1 1],'linewidth',1.2*lw);
 set(ax,'ytick',0:0.25:1,'ycolor','k','fontsize',fs-1)
 ylim(ax,[0 1])
-ylabel(ax,'cumulative PDF','fontsize',fs)
+ylabel(ax,'cum. energy fraction','fontsize',fs)
 yyaxis(ax,'left')
 set(ax,'ycolor','k')
 
@@ -125,7 +125,7 @@ end
 % plot(ax,adcp(dep).fbin,P_dep,'-','color',vel_clrs(1,:),'linewidth',lw)
 % set(ax,'xscale','log','yscale','log')
 
-lgd = legend(ax,h_psd([1 3]),{'u','w'},'fontsize',fs-1);
+lgd = legend(ax,h_psd([1 3]),{'\itu','\itw'},'fontsize',fs-1);
 % lgd = legend(ax,h_psd([1 3 2]),{'u','w','cpdf'},'fontsize',fs-1);
 % lgd = legend(ax,h_psd,{'P(u)+P(w)','cpdf'},'fontsize',fs-1);
 lgd.Position(2) = 0.6;
@@ -134,17 +134,18 @@ yyaxis(ax,'right')
 set(ax,'ytick',0:0.2:1)
 yyaxis(ax,'left')
 
-ylabel(ax,'\Psi_{u} [m^2/s^2 cps^{-1}]','fontsize',fs)
+ylabel(ax,'\Psi_ (m^2 s^{-2} cps^{-1})','fontsize',fs)
 set(ax,'xtick',10.^(-6:2:2))
 set(ax,'ytick',10.^(-6:2:2))
-xlabel(ax,'f [cps]','fontsize',fs)
+xlabel(ax,'{\itf} (cps)','fontsize',fs)
 grid(ax,'off')
 xlim(ax,[10^-4 2.5])
 ylim(ax,10.^[-4.3 1.6])
 set(ax,'FontSize',fs)
 set(ax,'ticklength',[.02 .05])
+set(ax.YLabel,'units','normalized')
+ax.YLabel.Position(1) = -0.18
 
 pnl_lbl = addPanelLabels(ax,fs);
-pnl_lbl.String = 'g) velocity spectra';
-pnl_lbl.FontWeight = 'bold';
+pnl_lbl.String = '{\bfG} velocity spectra';
 pnl_lbl.Position(1:2) = [.005 1.09];

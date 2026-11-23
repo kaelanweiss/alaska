@@ -10,7 +10,7 @@ addpath('..')
 proc_dir = 'F:/meltstake/data/proc';
 
 % save output
-save_output = 1;
+save_output = 0;
 
 % ms deployment info
 ms_tbl = loadMSInfo(26:28,'segments');

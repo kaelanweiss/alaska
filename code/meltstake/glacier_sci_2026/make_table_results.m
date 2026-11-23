@@ -32,7 +32,7 @@ Sb = mod_glac.Sb_mean;
 % calculate Tf
 Tf = T-Tb;
 
-% convert melt rate to m/day
+% convert melt rate to m\per{day}
 m = m*.24;
 m_ci = m_ci*.24;
 
@@ -59,8 +59,8 @@ nrows = length(rows);
 
 % column labels and units
 col_lbls = {'Seg','$\\overline{U_\\mathrm{inst}}$','$\\overline{U_\\mathrm{mean}}$','$\\overline{T-T_b}$','$\\overline{S}$',...
-            '$m_\\mathrm{obs}$','$\\overline{T_b}$','$\\overline{S_b}$','$m_\\mathrm{3eqn}$','$m_\\mathrm{3eqn,coarse}$'};
-col_units = {'','m/s','m/s','K','psu','m/day','$^\\circ$C','psu','m/day','m/day'};
+            '$m_\\mathrm{obs}$','$\\overline{T_b}$','$\\overline{S_b}$','$m_\\mathrm{3eqn,inst}$','$m_\\mathrm{3eqn,mean}$'};
+col_units = {'','m\\per{s}','m\\per{s}','K','psu','m\\per{day}','$^\\circ$C','psu','m\\per{day}','m\\per{day}'};
 
 % header lines
 ncols = length(col_lbls);
@@ -69,7 +69,7 @@ line2 = '';
 for i = 1:ncols
     line1 = [line1 sprintf('%s',col_lbls{i})];
     if ~isempty(col_units{i})
-        line2 = [line2 sprintf('[%s]',col_units{i})];
+        line2 = [line2 sprintf('(%s)',col_units{i})];
     end
     if i<ncols
         line1 = [line1 ' & '];

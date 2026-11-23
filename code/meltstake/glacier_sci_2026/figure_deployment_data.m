@@ -87,7 +87,7 @@ clear ax
 lw = 0.8;
 fs = 10;
 
-pad = [.05 .035 .085 .06];
+pad = [.05 .038 .085 .06];
 shift = [.035 -0.015];
 nf = 6;
 for i = 1:nf
@@ -152,29 +152,29 @@ end
 
 % ylabels
 for i = 1:2
-    ylabel(ax(i),'y [m]','fontsize',fs)
     set(ax(i),'fontsize',fs,'ytick',0:0.2:0.6)
+    ylabel(ax(i),'{\ity} (m)','fontsize',fs)
 end
-ylabel(ax(3),'speed [m/s]','fontsize',fs)
-ylabel(ax(4),'T [\circC]','fontsize',fs)
-ylabel(ax(5),'S [psu]','fontsize',fs)
-ylabel(ax(6),'m [m/day]','fontsize',fs)
+ylabel(ax(3),'speed (m s^{-1})','fontsize',fs)
+ylabel(ax(4),'{\itT} (\circC)','fontsize',fs)
+ylabel(ax(5),'{\itS} (psu)','fontsize',fs)
+ylabel(ax(6),'{\itm} (m day^{-1})','fontsize',fs)
 
 % panels
-p_lbls = addPanelLabels(ax,fs);
+p_lbls = [addPanelLabels(ax,fs)];
 for i = 1:length(p_lbls)
     % p_lbls(i).BackgroundColor = 'w';
     p_lbls(i).Position(1) = .005;
-    p_lbls(i).Position(2) = 1.25;
-    p_lbls(i).FontWeight = 'bold';
+    p_lbls(i).Position(2) = 1.28;
+    % p_lbls(i).FontWeight = 'bold';
 end
 p_lbls(3).Position(2) = p_lbls(3).Position(2)+0.01;
-p_lbls(1).String = 'a) u';
-p_lbls(2).String = 'b) w';
-p_lbls(3).String = 'c) sqrt(u^2+w^2)';
-p_lbls(4).String = 'd) temperature';
-p_lbls(5).String = 'e) salinity';
-p_lbls(6).String = 'f) melt rate';
+p_lbls(1).String = '{\bfA} {\it u} (horz-along-ice)';
+p_lbls(2).String = '{\bfB} {\it w} (vertical)';
+p_lbls(3).String = '{\bfC} {\it U}_{inst}';
+p_lbls(4).String = '{\bfD} temperature';
+p_lbls(5).String = '{\bfE} salinity';
+p_lbls(6).String = '{\bfF} melt rate';
 
 % colobar
 ax1_pos = ax(1).Position;
@@ -183,16 +183,16 @@ cbar.Position(3:4) = [0.4*ax(1).Position(3) .02];
 cbar.Position(1) = sum(ax1_pos([1 3])) - cbar.Position(3);
 cbar.Position(2) = sum(ax1_pos([2 4])) + .005;
 cbar.TickLength = .04;
-cbar_txt = text(ax(1),0.46,1.42,'[m/s]','fontsize',fs-1,'units','normalized');
+cbar_txt = text(ax(1),0.45,1.48,'(m s^{-1})','fontsize',fs-1,'units','normalized');
 
-% cbar_txt = text(ax(1),sum(cbar.Position([1 3]))+.01,cbar.Position(2),'[m/s]','units','normalized');
-% cbar.Label.String = 'velocity [m/s]';
+% cbar_txt = text(ax(1),sum(cbar.Position([1 3]))+.01,cbar.Position(2),'(m s^{-1})','units','normalized');
+% cbar.Label.String = 'velocity (m s^{-1})';
 % cbar.Label.FontSize = fs;
 % cbar.Label.FontWeight = 'bold';
 cbar.FontSize = fs-1;
 
 % legends
-lgd4 = legend(ax(4),h4,{'10cm','25cm','40cm'},'fontsize',fs-1,'orientation','horizontal','location','southeast');
+lgd4 = legend(ax(4),h4,{'10cm','25cm','40cm'},'fontsize',fs-2,'orientation','horizontal','location','southeast');
 lgd4.Position(1:2) = [0.345 0.338];
 
 % axes limits
@@ -296,13 +296,13 @@ ylim(ax(6),[0 4.5])
 % 
 % % ylabels
 % for i = 1:2
-%     ylabel(ax(i),'y [m]','fontsize',fs)
+%     ylabel(ax(i),'y (m)','fontsize',fs)
 %     set(ax(i),'fontsize',fs,'ytick',0:0.2:0.6)
 % end
-% ylabel(ax(3),'speed [m/s]','fontsize',fs)
-% ylabel(ax(4),'T [\circC]','fontsize',fs)
-% ylabel(ax(5),'S [psu]','fontsize',fs)
-% ylabel(ax(6),'m [m/day]','fontsize',fs)
+% ylabel(ax(3),'speed (m s^{-1})','fontsize',fs)
+% ylabel(ax(4),'T (\circC)','fontsize',fs)
+% ylabel(ax(5),'S (psu)','fontsize',fs)
+% ylabel(ax(6),'m (m day^{-1})','fontsize',fs)
 % 
 % % panels
 % p_lbls = addPanelLabels(ax,fs);
@@ -321,7 +321,7 @@ ylim(ax(6),[0 4.5])
 % 
 % % colobar
 % cbar = colorbar(ax(2),'position',cbarpos(ax(1:2),.01,.02));
-% cbar.Label.String = 'velocity [m/s]';
+% cbar.Label.String = 'velocity (m s^{-1})';
 % cbar.Label.FontSize = fs;
 % % cbar.Label.FontWeight = 'bold';
 % cbar.FontSize = fs-1;

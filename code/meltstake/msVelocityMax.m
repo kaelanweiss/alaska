@@ -14,6 +14,8 @@ function [vel_max,i_vel_max] = msVelocityMax(adcp,varargin)
 %   vel_max: time-dependent maximum ice-parallel velocity
 %   i_vel_max: index of maximum velocity
 %
+% NEED TO TEST
+%
 % KJW
 % 9 Nov 2026
 

@@ -29,7 +29,7 @@ line2 = '';
 for i = 1:ncols
     line1 = [line1 sprintf('%s & ',col_lbls{i})];
     if ~isempty(col_units{i})
-        line2 = [line2 sprintf('[%s] & ',col_units{i})];
+        line2 = [line2 sprintf('(%s) & ',col_units{i})];
     else
         line2 = [line2 ' & '];
     end

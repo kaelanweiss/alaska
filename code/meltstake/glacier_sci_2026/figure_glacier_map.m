@@ -184,8 +184,8 @@ clim(ax_sat,[0.3 1])
 set(ax_sat,'xtick',[],'ytick',[])
 set(ax_mb,'xtick',0:500:L,'ytick',0:500:L)
 set(ax_mb,'yticklabelrotation',90)
-xlabel(ax_mb,'easting [m]','fontsize',fs)
-ylabel(ax_mb,'northing [m]','fontsize',fs)
+xlabel(ax_mb,'easting (m)','fontsize',fs)
+ylabel(ax_mb,'northing (m)','fontsize',fs)
 
 % cbar
 ax_mb_pos = ax_mb.Position;
@@ -196,11 +196,11 @@ cbar.Position(1) = .19;
 cbar.Position(2) = sum(ax_mb_pos([2])) + 0.03;
 cbar.Position(3) = 0.22;
 cbar.Position(4) = .04;
-cbar.Label.String = 'depth [m]';
+cbar.Label.String = 'depth (m)';
 cbar.Label.FontSize = 8;
 cbar.Color = 0.85*[1 1 1];
 
-ctd_version = 1;
+ctd_version = 0;
 if ctd_version
     % ctd locations
     for i = 1:nt

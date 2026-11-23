@@ -94,7 +94,7 @@ end
 cmocean('sol',ax(1))
 cbar = colorbar(ax(1),'position',cbarpos(ax(1),.01,.03),'fontsize',ax(1).FontSize);
 clim(ax(1),[5.5 7])
-text(ax(1),1.3,0.5,{'T-T_b','[K]'},'fontsize',fs-1,'horizontalalignment','center','verticalalignment','middle','units','normalized','fontweight','normal')
+text(ax(1),1.3,0.5,{'{\it T-T_b}','(K)'},'fontsize',fs-1,'horizontalalignment','center','verticalalignment','middle','units','normalized','fontweight','normal')
 
 % panel 2: m_3eqn
 % plotConfidenceRegion(ax(2),[0 10],[0 10]*(1-tune_unc),[0 10]*(1+tune_unc),'k',0.15)
@@ -158,14 +158,14 @@ ylim(ax(1),[0 4.6])
 
 % axes labels
 for i = 1:3
-    ylabel(ax(i),'m_{obs} [m day^{-1}]','fontsize',fs)
+    ylabel(ax(i),'{\it m}_{obs} (m day^{-1})','fontsize',fs)
 end
-xlabel(ax(1),'U_{inst} [m s^{-1}]','fontsize',fs)
-xlabel(ax(2),'m_{3eqn} [m day^{-1}]','fontsize',fs)
-xlabel(ax(3),'m_{3eqn} [m day^{-1}]','fontsize',fs)
-xlabel(ax_in2,'log_{10}(m_{obs}/m_{3eqn})','fontsize',fs-1,'fontweight','normal')
+xlabel(ax(1),'{\it U}_{inst} (m s^{-1})','fontsize',fs)
+xlabel(ax(2),'{\it m}_{3eqn} (m day^{-1})','fontsize',fs)
+xlabel(ax(3),'{\it m}_{3eqn} (m day^{-1})','fontsize',fs)
+xlabel(ax_in2,'log_{10}({\itm}_{obs}/{\itm}_{3eqn})','fontsize',fs-1,'fontweight','normal')
 ylabel(ax_in2,'segments','fontsize',fs-1)
-xlabel(ax_in3,'log_{10}(m_{obs}/m_{3eqn})','fontsize',fs-1,'fontweight','normal')
+xlabel(ax_in3,'log_{10}({\itm}_{obs}/{\itm}_{3eqn})','fontsize',fs-1,'fontweight','normal')
 ylabel(ax_in3,'segments','fontsize',fs-1)
 
 % legend
@@ -173,14 +173,19 @@ lgd = legend(ax(3),h3,cat(2,dep_lbls,{'iceberg'}),'orientation','vertical','font
 lgd.Position([1 2]) = [sum(ax(2).Position([1 3]))+.01 sum(ax(2).Position([2 4]))-lgd.Position(4)/2];
 
 % panel lbls
-pnl_lbls = addPanelLabels([ax ax_in2 ax_in3],fs-1);
-pnl_lbls(1).String = 'a) U_{inst} and T-T_b';
-pnl_lbls(2).String = 'b) inst forcing';
-pnl_lbls(3).String = 'd) mean forcing';
-pnl_lbls(4).String = 'c)';
-pnl_lbls(5).String = 'e)';
-for i = 1:length(pnl_lbls)
+pnl_lbls = [addPanelLabels([ax ax_in2 ax_in3],fs) addPanelLabels(ax,fs)];
+pnl_lbls(1).String = 'A';
+pnl_lbls(2).String = 'B';
+pnl_lbls(3).String = 'D';
+pnl_lbls(4).String = 'C';
+pnl_lbls(5).String = 'E';
+pnl_lbls(6).String = '    {\itU}_{inst} and {\itT-T_b}';
+pnl_lbls(7).String = '    inst forcing';
+pnl_lbls(8).String = '    mean forcing';
+for i = 1:5
     pnl_lbls(i).FontWeight = 'bold';
+end
+for i = 1:length(pnl_lbls)
     pnl_lbls(i).Position(2) = 0.975;
 end
 
@@ -304,11 +309,11 @@ title(ax_in3,'RMSPE: 0.71','fontsize',fs-1,'fontweight','normal')
 % 
 % % axes labels
 % for i = 1:3
-%     ylabel(ax(i),'m_{obs} [m day^{-1}]','fontsize',fs)
+%     ylabel(ax(i),'{\it m}_{obs} [m day^{-1}]','fontsize',fs)
 % end
-% xlabel(ax(1),'U_{inst} [m s^{-1}]','fontsize',fs)
-% xlabel(ax(2),'m_{3eqn} [m day^{-1}]','fontsize',fs)
-% xlabel(ax(3),'m_{3eqn} [m day^{-1}]','fontsize',fs)
+% xlabel(ax(1),'{\it U}_{inst} [m s^{-1}]','fontsize',fs)
+% xlabel(ax(2),'{\it m}_{3eqn} [m day^{-1}]','fontsize',fs)
+% xlabel(ax(3),'{\it m}_{3eqn} [m day^{-1}]','fontsize',fs)
 % xlabel(ax_in2,'log_{10}(m_{obs}/m_{3eqn})','fontsize',fs-1,'fontweight','normal')
 % ylabel(ax_in2,'segments','fontsize',fs-1)
 % xlabel(ax_in3,'log_{10}(m_{obs}/m_{3eqn})','fontsize',fs-1,'fontweight','normal')
@@ -320,7 +325,7 @@ title(ax_in3,'RMSPE: 0.71','fontsize',fs-1,'fontweight','normal')
 % 
 % % panel lbls
 % pnl_lbls = addPanelLabels([ax ax_in2 ax_in3],fs-1);
-% pnl_lbls(1).String = 'a) U_{inst} and T-T_b';
+% pnl_lbls(1).String = 'a) {\it U}_{inst} and T-T_b';
 % pnl_lbls(2).String = 'b) full forcing';
 % pnl_lbls(3).String = 'd) mean forcing';
 % pnl_lbls(4).String = 'c)';
